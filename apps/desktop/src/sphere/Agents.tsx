@@ -21,16 +21,25 @@ function Agent({ spec }: { spec: AgentSpec }) {
   const node = useRef<THREE.Mesh>(null);
   const halo = useRef<THREE.Mesh>(null);
   const scratch = useMemo(() => new THREE.Vector3(), []);
+  const radMult = useRef(1);
+  const active = useRef(0);
 
   useFrame((_, dt) => {
     const d = Math.min(dt, 0.05);
-    const ang = drive.t * spec.speed + spec.phase;
-    const r = spec.radius;
+    const isActive = drive.activeAgent === spec.name;
+    // when dispatched, the agent leaves its orbit (extends out, toward the eye)
+    radMult.current = THREE.MathUtils.damp(radMult.current, isActive ? 1.7 : 1, 4, d);
+    active.current = THREE.MathUtils.damp(active.current, isActive ? 1 : 0, 5, d);
+
+    const ang = drive.t * spec.speed * (1 + active.current) + spec.phase;
+    const r = spec.radius * radMult.current;
     const ct = Math.cos(spec.tilt), st = Math.sin(spec.tilt);
     const cx = Math.cos(ang) * r, cy = Math.sin(ang) * r;
-    scratch.set(cx, cy * ct, cy * st); // tilt the orbital plane about X
+    scratch.set(cx, cy * ct, cy * st + active.current * 0.6); // tilt + lift toward camera
     node.current?.position.copy(scratch);
     halo.current?.position.copy(scratch);
+    node.current?.scale.setScalar(1 + active.current * 1.1);
+    halo.current?.scale.setScalar(1 + active.current * 1.6);
     if (grp.current) {
       // orbitals focus inward when FRIDAY turns its attention to you
       const s = 1 - drive.presence * 0.42;

@@ -6,6 +6,7 @@ import { ModuleRail } from "./hud/ModuleRail";
 import { CommandCenter } from "./command-center/CommandCenter";
 import { Conversation } from "./voice/Conversation";
 import { Overlays } from "./ui/Overlays";
+import { Modes } from "./ui/Modes";
 import { useFriday } from "./core/store";
 import { startOrchestrator, bootComplete } from "./core/orchestrator";
 
@@ -42,6 +43,7 @@ export function App() {
             <ModuleRail />
             <HUD />
             <CommandCenter />
+            <Modes />
             <Conversation />
             <Overlays />
           </>

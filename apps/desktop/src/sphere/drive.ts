@@ -22,6 +22,7 @@ export const drive = {
   alert: 0,
   presence: 0, // attention toward the user (listening): rings still, core bright
   pulse: 0, // speaking voice envelope (outward waves)
+  activeAgent: null as string | null, // an agent dispatched to execute
 };
 
 interface P {
@@ -52,9 +53,10 @@ const gt = new THREE.Color();
 export function updateDrive(dt: number): void {
   const d = Math.min(dt, 0.05);
   drive.t += d;
-  const { state, emotion, audioLevel } = useFriday.getState();
+  const { state, emotion, audioLevel, activeAgent } = useFriday.getState();
   const p = TARGETS[state];
   const th = emotionThemes[emotion];
+  drive.activeAgent = activeAgent;
 
   ct.fromArray(th.core);
   gt.fromArray(th.glow);

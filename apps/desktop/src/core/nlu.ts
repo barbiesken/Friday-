@@ -113,9 +113,12 @@ export function route(utteranceRaw: string): Intent {
       intent: "captain_mode",
       reply: "Captain mode. Mission view online. Standing by.",
       emotion: "focused",
-      layout: "hud",
+      layout: "captain",
       command: "Elevating to captain mode",
     };
+
+  if (has("exit", "normal view", "show everything", "stand down", "orbital"))
+    return { intent: "exit_mode", reply: "Back to orbital.", layout: "orbital" };
 
   if (has("remember this", "remember", "note this", "second brain"))
     return {

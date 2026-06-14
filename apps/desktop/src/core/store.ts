@@ -21,6 +21,8 @@ export interface FridayStore {
   workspace: WorkspaceId;
   panel: PanelId | null;
   voiceMode: VoiceMode;
+  /** the agent currently dispatched to execute a task (leaves its orbit) */
+  activeAgent: string | null;
   /** unified 0..1 — mic level while listening, voice level while speaking */
   audioLevel: number;
   booted: boolean;
@@ -37,6 +39,7 @@ export interface FridayStore {
   setWorkspace: (w: WorkspaceId) => void;
   setPanel: (p: PanelId | null) => void;
   setVoiceMode: (v: VoiceMode) => void;
+  setActiveAgent: (a: string | null) => void;
   setAudioLevel: (v: number) => void;
   setBooted: (v: boolean) => void;
   setNight: (v: boolean) => void;
@@ -66,6 +69,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   workspace: "default",
   panel: null,
   voiceMode: "jarvis",
+  activeAgent: null,
   audioLevel: 0,
   booted: false,
   night: isNight(),
@@ -84,6 +88,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   setWorkspace: (workspace) => set({ workspace }),
   setPanel: (panel) => set({ panel }),
   setVoiceMode: (voiceMode) => set({ voiceMode }),
+  setActiveAgent: (activeAgent) => set({ activeAgent }),
   setAudioLevel: (audioLevel) => set({ audioLevel }),
   setBooted: (booted) => set({ booted }),
   setNight: (night) => set({ night }),

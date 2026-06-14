@@ -40,6 +40,16 @@ function planLabel(i: Intent): string {
   return `Intent → ${i.intent.replace(/_/g, " ")}`;
 }
 
+/** Which agent module handles this intent (it visibly leaves orbit to execute). */
+function agentFor(intent: string): string | null {
+  if (intent === "daily_brief" || intent === "time") return "Calendar";
+  if (intent === "open_memory" || intent === "second_brain") return "Memory";
+  if (intent === "next_action" || intent === "fallback" || intent === "identity") return "Research";
+  if (intent === "open_app" || intent.startsWith("work") || intent.startsWith("workspace") ||
+      intent === "transform_workspace" || intent === "focus_mode" || intent === "captain_mode") return "Builder";
+  return null;
+}
+
 function speakAndWait(text: string): Promise<void> {
   return new Promise<void>((resolve) => {
     let done = false;
@@ -103,10 +113,13 @@ async function handle(text: string) {
 
     if (intent.command) {
       go("executing");
+      const agent = agentFor(intent.intent);
+      if (agent) useFriday.getState().setActiveAgent(agent);
       st.addThinking("executing", intent.command);
       bus.emit("command/run", { id: intent.intent, label: intent.command });
-      await delay(460);
+      await delay(620);
       bus.emit("command/done", { id: intent.intent });
+      useFriday.getState().setActiveAgent(null);
     }
     if (intent.workspace) applyWorkspace(intent.workspace);
     if (intent.panel) useFriday.getState().setPanel(intent.panel);
@@ -115,6 +128,7 @@ async function handle(text: string) {
     await respond(intent.reply, intent.emotion ?? useFriday.getState().emotion, intent.settle);
   } finally {
     busy = false;
+    useFriday.getState().setActiveAgent(null);
   }
 }
 
@@ -179,6 +193,11 @@ export function startOrchestrator() {
   if (typeof window !== "undefined") {
     window.addEventListener("keydown", (e) => {
       const typing = (e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA/);
+      if (e.key === "Escape") {
+        const st = useFriday.getState();
+        if (!st.panel && (st.layout === "flow" || st.layout === "captain")) setLayout("orbital");
+        return; // panel closing is handled by the Overlays listener
+      }
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
         const st = useFriday.getState();

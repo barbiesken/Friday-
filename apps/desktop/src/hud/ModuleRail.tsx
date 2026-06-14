@@ -14,7 +14,10 @@ const MODULES: Array<{ key: string; glyph: string; panel: PanelId | null; label:
 export function ModuleRail() {
   const panel = useFriday((s) => s.panel);
   const setPanel = useFriday((s) => s.setPanel);
+  const layout = useFriday((s) => s.layout);
   const activeKey = panel ?? "core";
+
+  if (layout === "flow") return null; // everything dissolves in Flow
 
   return (
     <motion.div
