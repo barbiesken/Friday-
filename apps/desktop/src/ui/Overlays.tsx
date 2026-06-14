@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFriday } from "../core/store";
 import { applyWorkspace, WORKSPACES } from "../core/workspaces";
+import { submitUserText } from "../core/orchestrator";
 import type { PanelId, VoiceMode } from "../core/types";
 
 const TITLES: Record<PanelId, string> = {
@@ -149,6 +150,49 @@ function Settings() {
   );
 }
 
+const COMMANDS: Array<[string, string]> = [
+  ["Brief me on my day", "friday brief me"],
+  ["What should I do next", "friday what's next"],
+  ["Focus mode", "friday focus mode"],
+  ["Start work mode", "friday start work mode"],
+  ["Builder workspace", "friday builder"],
+  ["Study workspace", "friday study"],
+  ["Movie workspace", "friday movie"],
+  ["Night mode", "friday night mode"],
+  ["Take command", "friday take command"],
+  ["Show my Second Brain", "friday show my memory"],
+  ["Open permissions", "friday permissions"],
+  ["Open settings", "friday settings"],
+  ["Celebrate — I finished", "friday i finished"],
+  ["Good night", "friday good night"],
+];
+
+function Palette() {
+  const setPanel = useFriday((s) => s.setPanel);
+  const [q, setQ] = useState("");
+  const list = COMMANDS.filter(([label]) => label.toLowerCase().includes(q.toLowerCase()));
+  const run = (utterance: string) => { setPanel(null); submitUserText(utterance); };
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <input autoFocus value={q} onChange={(e) => setQ(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && list[0] && run(list[0][1])}
+        placeholder="Type a command…"
+        style={{ background: "rgba(10,16,28,0.6)", border: "1px solid var(--glass-line)", borderRadius: 12,
+          padding: "12px 16px", color: "var(--soft-white)", fontSize: 15, outline: "none" }} />
+      <div style={{ display: "grid", gap: 6, maxHeight: 340, overflowY: "auto" }}>
+        {list.map(([label, utterance]) => (
+          <button key={label} onClick={() => run(utterance)}
+            style={{ textAlign: "left", background: "rgba(10,16,28,0.5)", border: "1px solid var(--glass-line)",
+              borderRadius: 10, padding: "11px 14px", color: "var(--soft-white)", fontSize: 14, cursor: "pointer" }}>
+            {label}
+          </button>
+        ))}
+        {list.length === 0 && <div style={{ color: "var(--mute)", fontSize: 13, padding: 8 }}>No matching command.</div>}
+      </div>
+    </div>
+  );
+}
+
 /** Holographic surfaces that emerge from the core and disintegrate back. */
 export function Overlays() {
   const panel = useFriday((s) => s.panel);
@@ -191,6 +235,7 @@ export function Overlays() {
             {panel === "memory" && <Memory />}
             {panel === "permissions" && <Permissions />}
             {panel === "settings" && <Settings />}
+            {panel === "palette" && <Palette />}
           </motion.div>
         </motion.div>
       )}

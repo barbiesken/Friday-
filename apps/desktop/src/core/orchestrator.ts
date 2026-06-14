@@ -175,10 +175,16 @@ export function startOrchestrator() {
     if (useFriday.getState().state === "listening" && !busy) go("idle", "calm");
   });
 
-  // keyboard summon: Space (when not typing)
+  // keyboard summon: Space to speak · ⌘K or "/" for the command palette
   if (typeof window !== "undefined") {
     window.addEventListener("keydown", (e) => {
       const typing = (e.target as HTMLElement)?.tagName?.match(/INPUT|TEXTAREA/);
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
+        e.preventDefault();
+        const st = useFriday.getState();
+        st.setPanel(st.panel === "palette" ? null : "palette");
+        return;
+      }
       if (e.code === "Space" && !typing) {
         e.preventDefault();
         manualWake();
