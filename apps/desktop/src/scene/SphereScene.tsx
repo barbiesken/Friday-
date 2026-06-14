@@ -4,8 +4,7 @@ import { Grid } from "@react-three/drei";
 import { EffectComposer, Bloom, ChromaticAberration, Vignette, Noise } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
-import { Sphere } from "../sphere/Sphere";
-import { Satellites } from "../sphere/Satellites";
+import { Core } from "../sphere/Core";
 import { Starfield } from "../sphere/Starfield";
 
 /** Eases the camera toward the pointer for subtle motion depth (parallax). */
@@ -36,14 +35,14 @@ export function SphereScene() {
         powerPreference: "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
       }}
-      camera={{ position: [0, 0, 4.2], fov: 42 }}
+      camera={{ position: [0, 0, 4.7], fov: 42 }}
       onCreated={({ gl }) => gl.setClearColor("#04060a", 1)}
     >
       <Suspense fallback={null}>
         <CameraRig />
         <Starfield />
         <Grid
-          position={[0, -1.75, 0]}
+          position={[0, -1.9, 0]}
           args={[40, 40]}
           cellSize={0.55}
           cellThickness={0.5}
@@ -51,12 +50,11 @@ export function SphereScene() {
           sectionSize={3}
           sectionThickness={1}
           sectionColor="#1c6fa8"
-          fadeDistance={24}
+          fadeDistance={26}
           fadeStrength={4}
           infiniteGrid
         />
-        <Sphere />
-        <Satellites />
+        <Core />
         <EffectComposer multisampling={0}>
           <Bloom intensity={1.15} luminanceThreshold={0.18} luminanceSmoothing={0.3} mipmapBlur radius={0.78} />
           <ChromaticAberration offset={aberration.current} radialModulation modulationOffset={0.4} />

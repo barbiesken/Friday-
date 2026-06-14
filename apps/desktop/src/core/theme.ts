@@ -11,15 +11,15 @@ export function hexToRGB(hex: string): RGB {
 export const palette = {
   void: "#04060a",
   void2: "#0a0f1a",
-  energy: "#36b9ff",
-  energySoft: "#7fd3ff",
+  energy: "#2f8fff", // electric blue (primary)
+  energySoft: "#7fd3ff", // cyan (highlight)
   energyDeep: "#0a4d8c",
   softWhite: "#eaf4ff",
   mute: "#6b7d96",
-  alert: "#ff4d5e",
-  success: "#43e8b0",
-  curious: "#9b7bff",
-  deepthink: "#b06bff",
+  alert: "#ff3b4d",
+  success: "#8fe9ff", // on-palette "bright" (no green)
+  curious: "#36d0ff",
+  deepthink: "#2f6bff",
 } as const;
 
 export interface EmotionTheme {
@@ -38,46 +38,11 @@ export interface EmotionTheme {
  * The Sphere never "feels" — it expresses these as color, motion and glow.
  */
 export const emotionThemes: Record<Emotion, EmotionTheme> = {
-  calm: {
-    core: hexToRGB(palette.energy),
-    glow: hexToRGB(palette.energySoft),
-    accent: palette.energy,
-    intensity: 0.6,
-  },
-  focused: {
-    core: hexToRGB(palette.energySoft),
-    glow: hexToRGB(palette.energy),
-    accent: palette.energySoft,
-    intensity: 0.85,
-  },
-  curious: {
-    core: hexToRGB(palette.curious),
-    glow: hexToRGB("#c9b6ff"),
-    accent: palette.curious,
-    intensity: 0.9,
-  },
-  alert: {
-    core: hexToRGB(palette.alert),
-    glow: hexToRGB("#ff9aa3"),
-    accent: palette.alert,
-    intensity: 1.0,
-  },
-  celebrating: {
-    core: hexToRGB(palette.success),
-    glow: hexToRGB("#9bffd9"),
-    accent: palette.success,
-    intensity: 1.0,
-  },
-  deepthink: {
-    core: hexToRGB(palette.deepthink),
-    glow: hexToRGB("#d6a8ff"),
-    accent: palette.deepthink,
-    intensity: 0.7,
-  },
-  sleep: {
-    core: hexToRGB(palette.energyDeep),
-    glow: hexToRGB("#1d6fb0"),
-    accent: palette.energyDeep,
-    intensity: 0.25,
-  },
+  calm:        { core: hexToRGB("#2f8fff"), glow: hexToRGB("#7fd3ff"), accent: "#36b9ff", intensity: 0.6 },
+  focused:     { core: hexToRGB("#36b9ff"), glow: hexToRGB("#aee9ff"), accent: "#36b9ff", intensity: 0.85 },
+  curious:     { core: hexToRGB("#36d0ff"), glow: hexToRGB("#bff0ff"), accent: "#36d0ff", intensity: 0.9 },
+  alert:       { core: hexToRGB("#ff3b4d"), glow: hexToRGB("#ff9aa3"), accent: "#ff3b4d", intensity: 1.0 },
+  celebrating: { core: hexToRGB("#8fe9ff"), glow: hexToRGB("#ffffff"), accent: "#8fe9ff", intensity: 1.0 },
+  deepthink:   { core: hexToRGB("#2f6bff"), glow: hexToRGB("#9fc4ff"), accent: "#2f6bff", intensity: 0.7 },
+  sleep:       { core: hexToRGB("#143a66"), glow: hexToRGB("#1d6fb0"), accent: "#2f6fb0", intensity: 0.25 },
 };
