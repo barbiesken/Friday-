@@ -91,6 +91,13 @@ async function handle(text: string) {
     await delay(300);
 
     const intent = route(text);
+    if (intent.intent === "second_brain") {
+      const note = text
+        .replace(/^\s*(hey\s+)?friday[,\s]*/i, "")
+        .replace(/remember( this)?[:,]?/i, "")
+        .trim();
+      useFriday.getState().capture(note || "(captured)", "idea");
+    }
     st.addThinking("planning", planLabel(intent));
     await delay(340);
 

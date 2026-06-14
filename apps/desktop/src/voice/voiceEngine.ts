@@ -16,6 +16,7 @@ export class VoiceEngine {
   private micStream: MediaStream | null = null;
   private meterRAF = 0;
   private speakRAF = 0;
+  private cueCtx: AudioContext | null = null;
   private listening = false;
 
   readonly canSTT: boolean;
@@ -31,10 +32,36 @@ export class VoiceEngine {
   async startListening(): Promise<void> {
     if (this.listening) return;
     this.listening = true;
+    this.playWakeCue();
     bus.emit("voice/listen-start", {});
     this.cancelSpeak(); // barge-in
     void this.startMeter();
     this.startRecognition();
+  }
+
+  /** A short rising blip — the audible "I'm listening" cue. */
+  playWakeCue(): void {
+    try {
+      const Ctx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.cueCtx ||= new Ctx();
+      const ctx = this.cueCtx;
+      const now = ctx.currentTime;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.setValueAtTime(440, now);
+      o.frequency.exponentialRampToValueAtTime(880, now + 0.16);
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.1, now + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+      o.connect(g).connect(ctx.destination);
+      o.start(now);
+      o.stop(now + 0.42);
+    } catch {
+      /* audio unavailable — fine */
+    }
   }
 
   stopListening(): void {

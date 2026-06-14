@@ -28,6 +28,7 @@ export interface FridayStore {
   metrics: SystemMetrics;
   transcript: TranscriptLine[];
   thinking: Array<{ phase: ThinkingPhase; label: string }>;
+  memories: Array<{ id: string; text: string; kind: string; at: number }>;
   lastWake: number;
 
   setState: (s: AssistantState) => void;
@@ -51,6 +52,9 @@ export interface FridayStore {
   setThinking: (steps: Array<{ phase: ThinkingPhase; label: string }>) => void;
   addThinking: (phase: ThinkingPhase, label: string) => void;
   clearThinking: () => void;
+
+  /** Second Brain — capture a thought/idea/task. */
+  capture: (text: string, kind?: string) => void;
 }
 
 const MAX_LINES = 60;
@@ -68,6 +72,10 @@ export const useFriday = create<FridayStore>((set, get) => ({
   metrics: { cpu: 0.12, mem: 0.34, net: 0.05, battery: 0.82 },
   transcript: [],
   thinking: [],
+  memories: [
+    { id: nextId(), text: "Sphere should illuminate the room, not the other way around.", kind: "idea", at: Date.now() - 3600_000 },
+    { id: nextId(), text: "Rebuild the core as five layers — energy, rings, streams, geometry, agents.", kind: "task", at: Date.now() - 1800_000 },
+  ],
   lastWake: 0,
 
   setState: (state) => set({ state, lastWake: state === "listening" ? Date.now() : get().lastWake }),
@@ -116,6 +124,9 @@ export const useFriday = create<FridayStore>((set, get) => ({
   setThinking: (thinking) => set({ thinking }),
   addThinking: (phase, label) => set((s) => ({ thinking: [...s.thinking, { phase, label }] })),
   clearThinking: () => set({ thinking: [] }),
+
+  capture: (text, kind = "note") =>
+    set((s) => ({ memories: [{ id: nextId(), text, kind, at: Date.now() }, ...s.memories].slice(0, 50) })),
 }));
 
 export function isNight(d = new Date()): boolean {

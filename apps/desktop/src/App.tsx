@@ -5,6 +5,7 @@ import { HUD } from "./hud/HUD";
 import { ModuleRail } from "./hud/ModuleRail";
 import { CommandCenter } from "./command-center/CommandCenter";
 import { Conversation } from "./voice/Conversation";
+import { Overlays } from "./ui/Overlays";
 import { useFriday } from "./core/store";
 import { startOrchestrator, bootComplete } from "./core/orchestrator";
 
@@ -42,6 +43,7 @@ export function App() {
             <HUD />
             <CommandCenter />
             <Conversation />
+            <Overlays />
           </>
         )}
         <BootGreeting show={showGreeting} />
