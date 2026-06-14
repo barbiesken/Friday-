@@ -2,6 +2,7 @@ import { bus } from "./eventBus";
 import { useFriday } from "./store";
 import { route, type Intent } from "./nlu";
 import { emotionThemes } from "./theme";
+import { applyWorkspace } from "./workspaces";
 import { voice } from "../voice/voiceEngine";
 import type { AssistantState, Emotion, LayoutMode, WakeSource } from "./types";
 
@@ -23,7 +24,9 @@ function go(state: AssistantState, emotion?: Emotion) {
   bus.emit("assistant/state", { state });
   if (emotion) {
     st.setEmotion(emotion);
-    setAccent(emotion);
+    // accent follows the emotion only in the default workspace; named
+    // workspaces own the accent (see applyWorkspace).
+    if (st.workspace === "default") setAccent(emotion);
     bus.emit("assistant/emotion", { emotion });
   }
 }
@@ -68,7 +71,8 @@ async function respond(text: string, emotion: Emotion, settle?: AssistantState) 
     await delay(1400);
     go("idle", "calm");
   } else {
-    go(useFriday.getState().night ? "sleep" : "idle", "calm");
+    // preserve the current emotion (workspace tints persist into idle)
+    go(useFriday.getState().night ? "sleep" : "idle");
   }
 }
 
@@ -97,9 +101,11 @@ async function handle(text: string) {
       await delay(460);
       bus.emit("command/done", { id: intent.intent });
     }
+    if (intent.workspace) applyWorkspace(intent.workspace);
+    if (intent.panel) useFriday.getState().setPanel(intent.panel);
     if (intent.layout) setLayout(intent.layout);
 
-    await respond(intent.reply, intent.emotion ?? "calm", intent.settle);
+    await respond(intent.reply, intent.emotion ?? useFriday.getState().emotion, intent.settle);
   } finally {
     busy = false;
   }

@@ -28,9 +28,9 @@ body {
   position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.5;
 }
 .aura.a { width: 46vw; height: 46vw; left: -10vw; top: -12vw;
-  background: radial-gradient(circle, rgba(28,92,160,0.6), transparent 70%); animation: drift1 26s ease-in-out infinite; }
+  background: radial-gradient(circle, var(--aura-a), transparent 70%); animation: drift1 26s ease-in-out infinite; transition: background 1.2s ease; }
 .aura.b { width: 40vw; height: 40vw; right: -8vw; bottom: -10vw;
-  background: radial-gradient(circle, rgba(80,60,200,0.34), transparent 70%); animation: drift2 32s ease-in-out infinite; }
+  background: radial-gradient(circle, var(--aura-b), transparent 70%); animation: drift2 32s ease-in-out infinite; transition: background 1.2s ease; }
 @keyframes drift1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(4vw,3vw); } }
 @keyframes drift2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-3vw,-4vw); } }
 

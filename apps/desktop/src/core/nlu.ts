@@ -1,4 +1,4 @@
-import type { AssistantState, Emotion, LayoutMode } from "./types";
+import type { AssistantState, Emotion, LayoutMode, PanelId, WorkspaceId } from "./types";
 
 export interface Intent {
   intent: string;
@@ -10,6 +10,10 @@ export interface Intent {
   settle?: AssistantState;
   /** a command label to surface in the "executing" transparency step */
   command?: string;
+  /** a workspace transformation to apply */
+  workspace?: WorkspaceId;
+  /** an overlay surface to open */
+  panel?: PanelId;
 }
 
 const hour = () => new Date().getHours();
@@ -32,12 +36,13 @@ export function route(utteranceRaw: string): Intent {
 
   if (!u) return { intent: "noop", reply: "I'm here." };
 
-  if (has("brief", "my day", "today", "good morning"))
+  if (has("brief", "my day", "good morning", "what's today", "whats today"))
     return {
       intent: "daily_brief",
       reply: `${greet()}, Aaryan. Three meetings, two priorities. Energy is high until two. Your one thing today: ship the Sphere.`,
       emotion: "focused",
       command: "Assembling your daily brief",
+      panel: "brief",
     };
 
   if (has("what's next", "whats next", "what should i", "next task", "what's left", "whats left"))
@@ -53,8 +58,36 @@ export function route(utteranceRaw: string): Intent {
       reply: "Focus mode. Everything else, away.",
       emotion: "focused",
       layout: "flow",
+      workspace: "focus",
       command: "Engaging focus mode",
     };
+
+  // workspace transformations (Aura Field + Room Mode)
+  const ws: Array<[WorkspaceId, string[]]> = [
+    ["builder", ["builder", "build mode", "coding room", "code mode"]],
+    ["study", ["study", "study room", "learn mode"]],
+    ["movie", ["movie", "cinema", "watch mode"]],
+    ["relax", ["relax", "chill", "calm mode"]],
+    ["night", ["night mode", "night room"]],
+  ];
+  for (const [id, keys] of ws)
+    if (has(...keys))
+      return {
+        intent: `workspace_${id}`,
+        reply: `${capitalize(id)} workspace.`,
+        workspace: id,
+        layout: "orbital",
+        command: `Transforming workspace → ${id}`,
+      };
+
+  if (has("show my memory", "my ideas", "my notes", "memory palace", "captured"))
+    return { intent: "open_memory", reply: "Here's what you've captured.", panel: "memory" };
+
+  if (has("permission", "privacy", "what can you access"))
+    return { intent: "permissions", reply: "Your permissions. You're always in control.", panel: "permissions" };
+
+  if (has("settings", "preferences", "voice mode"))
+    return { intent: "settings", reply: "Settings.", panel: "settings" };
 
   if (has("work mode", "start work", "let's work", "lets work"))
     return {
@@ -65,12 +98,13 @@ export function route(utteranceRaw: string): Intent {
       command: "Running command chain: start work mode",
     };
 
-  if (has("transform", "workspace", "builder", "study", "movie", "relax"))
+  if (has("transform", "workspace"))
     return {
       intent: "transform_workspace",
       reply: "Workspace transformed.",
       emotion: "curious",
       layout: "orbital",
+      workspace: "focus",
       command: "Transforming workspace",
     };
 

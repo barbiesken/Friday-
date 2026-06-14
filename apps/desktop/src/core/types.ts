@@ -28,7 +28,16 @@ export type Emotion =
   | "sleep";
 
 /** Where the Sphere lives on screen. */
-export type LayoutMode = "mini" | "full" | "orbital" | "hud" | "flow";
+export type LayoutMode = "mini" | "full" | "orbital" | "hud" | "flow" | "captain";
+
+/** Workspace transformations — Aura Field + Room Mode. */
+export type WorkspaceId = "default" | "focus" | "builder" | "study" | "movie" | "relax" | "night";
+
+/** Overlay surfaces opened from the module rail / command palette. */
+export type PanelId = "brief" | "memory" | "permissions" | "settings" | "palette";
+
+/** Voice personality. */
+export type VoiceMode = "professional" | "friendly" | "jarvis";
 
 /** How a wake was triggered. */
 export type WakeSource = "wake-word" | "double-clap" | "hotkey" | "manual";

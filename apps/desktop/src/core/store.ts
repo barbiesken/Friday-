@@ -3,9 +3,12 @@ import type {
   AssistantState,
   Emotion,
   LayoutMode,
+  PanelId,
   SystemMetrics,
   ThinkingPhase,
   TranscriptLine,
+  VoiceMode,
+  WorkspaceId,
 } from "./types";
 
 let lineSeq = 0;
@@ -15,6 +18,9 @@ export interface FridayStore {
   state: AssistantState;
   emotion: Emotion;
   layout: LayoutMode;
+  workspace: WorkspaceId;
+  panel: PanelId | null;
+  voiceMode: VoiceMode;
   /** unified 0..1 — mic level while listening, voice level while speaking */
   audioLevel: number;
   booted: boolean;
@@ -27,6 +33,9 @@ export interface FridayStore {
   setState: (s: AssistantState) => void;
   setEmotion: (e: Emotion) => void;
   setLayout: (m: LayoutMode) => void;
+  setWorkspace: (w: WorkspaceId) => void;
+  setPanel: (p: PanelId | null) => void;
+  setVoiceMode: (v: VoiceMode) => void;
   setAudioLevel: (v: number) => void;
   setBooted: (v: boolean) => void;
   setNight: (v: boolean) => void;
@@ -50,6 +59,9 @@ export const useFriday = create<FridayStore>((set, get) => ({
   state: "boot",
   emotion: "calm",
   layout: "full",
+  workspace: "default",
+  panel: null,
+  voiceMode: "jarvis",
   audioLevel: 0,
   booted: false,
   night: isNight(),
@@ -61,6 +73,9 @@ export const useFriday = create<FridayStore>((set, get) => ({
   setState: (state) => set({ state, lastWake: state === "listening" ? Date.now() : get().lastWake }),
   setEmotion: (emotion) => set({ emotion }),
   setLayout: (layout) => set({ layout }),
+  setWorkspace: (workspace) => set({ workspace }),
+  setPanel: (panel) => set({ panel }),
+  setVoiceMode: (voiceMode) => set({ voiceMode }),
   setAudioLevel: (audioLevel) => set({ audioLevel }),
   setBooted: (booted) => set({ booted }),
   setNight: (night) => set({ night }),
