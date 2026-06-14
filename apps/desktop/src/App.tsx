@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SphereScene } from "./scene/SphereScene";
 import { BootSequence, BootGreeting } from "./boot/BootSequence";
 import { HUD } from "./hud/HUD";
+import { ModuleRail } from "./hud/ModuleRail";
 import { CommandCenter } from "./command-center/CommandCenter";
 import { Conversation } from "./voice/Conversation";
 import { useFriday } from "./core/store";
@@ -22,6 +23,12 @@ export function App() {
         <SphereScene />
       </div>
 
+      {/* colour atmosphere over the canvas */}
+      <div className="aura-layer">
+        <div className="aura a" />
+        <div className="aura b" />
+      </div>
+
       {/* holographic frame */}
       <div className="bracket tl" />
       <div className="bracket tr" />
@@ -31,6 +38,7 @@ export function App() {
       <div className="hud-layer">
         {booted && (
           <>
+            <ModuleRail />
             <HUD />
             <CommandCenter />
             <Conversation />

@@ -1,11 +1,14 @@
 /**
- * The Sphere — GLSL. A fully emissive energy orb (no scene lighting): the glow
- * IS the light. Surface is noise-displaced; the rim fresnels; the interior flows
- * with a nebula and sparkles with stars. All behavior is driven by uniforms that
- * the React layer lerps toward state/emotion targets each frame.
+ * The Sphere — a layered, transparent glass orb.
+ *
+ *   atmosphere (additive halo)  ── outermost soft glow
+ *   glass shell (fresnel glass) ── transparent crystal, iridescent rim
+ *   particle field (GPU points) ── energy motes, faster near the core
+ *   energy soul  (emissive)     ── the wispy plasma heart
+ *
+ * Everything is driven by uniforms the React layer lerps toward state targets.
  */
 
-// Ashima 3D simplex noise (public domain) — shared by vertex + fragment.
 const SNOISE = /* glsl */ `
 vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}
 vec4 mod289(vec4 x){return x - floor(x * (1.0/289.0)) * 289.0;}
@@ -55,99 +58,141 @@ float snoise(vec3 v){
 }
 float fbm(vec3 p){
   float a = 0.5, f = 1.0, s = 0.0;
-  for(int i=0;i<4;i++){ s += a*snoise(p*f); f*=2.02; a*=0.5; }
+  for(int i=0;i<5;i++){ s += a*snoise(p*f); f*=2.03; a*=0.5; }
   return s;
 }
+vec3 iridescence(float t){
+  return 0.55 + 0.45*cos(6.28318*(vec3(0.0,0.33,0.66)+t));
+}
 `;
 
-export const sphereVertex = /* glsl */ `
-uniform float uTime;
-uniform float uDisplace;
-uniform float uBreathe;
-uniform float uRipple;
-uniform float uAudio;
-uniform float uStorm;
-
-varying vec3 vNormal;
-varying vec3 vView;
-varying vec3 vPos;
-varying float vNoise;
-
+/* ----------------------------- energy soul ----------------------------- */
+export const coreVertex = /* glsl */ `
+uniform float uTime, uDisplace, uBreathe, uStorm, uAudio;
+varying vec3 vNormal; varying vec3 vView; varying vec3 vPos; varying float vN;
 ${SNOISE}
-
 void main(){
-  vec3 p = position;
-  float t = uTime;
-
-  // organic surface — two layers of slow simplex
-  float n1 = snoise(normal * 1.6 + vec3(0.0, 0.0, t*0.22));
-  float n2 = snoise(normal * 3.3 + vec3(t*0.16, t*0.11, 0.0));
-  float n = n1 * 0.6 + n2 * 0.4;
-  vNoise = n;
-
-  // listening ripple — high-freq standing waves scaled by mic level
-  float ripple = sin(normal.y * 16.0 + t * 7.0) * uRipple * uAudio;
-  // thinking storm — chaotic turbulence
-  float storm = snoise(normal * 5.0 + vec3(t*0.95)) * uStorm;
-
-  float disp = (uDisplace + uBreathe) * n + ripple * 0.14 + storm * 0.11;
+  vec3 p = position; float t = uTime;
+  float n = snoise(normal*1.7 + vec3(0.0,0.0,t*0.25))*0.6 + snoise(normal*3.6+vec3(t*0.2))*0.4;
+  vN = n;
+  float storm = snoise(normal*5.0 + vec3(t*1.0)) * uStorm;
+  float disp = (uDisplace + uBreathe)*n + storm*0.12 + uAudio*0.05;
   p += normal * disp;
-
-  vec3 worldNormal = normalize(mat3(modelMatrix) * normal);
-  vec4 world = modelMatrix * vec4(p, 1.0);
-
-  vNormal = worldNormal;
-  vView = normalize(cameraPosition - world.xyz);
+  vNormal = normalize(mat3(modelMatrix)*normal);
+  vec4 w = modelMatrix*vec4(p,1.0);
+  vView = normalize(cameraPosition - w.xyz);
   vPos = p;
+  gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`;
 
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
-}
-`;
-
-export const sphereFragment = /* glsl */ `
+export const coreFragment = /* glsl */ `
 precision highp float;
-
-uniform float uTime;
-uniform vec3  uCore;
-uniform vec3  uGlow;
-uniform float uActivity;
-uniform float uStorm;
-uniform float uAlert;
-uniform float uOpacity;
-uniform float uGlowGain;
-
-varying vec3 vNormal;
-varying vec3 vView;
-varying vec3 vPos;
-varying float vNoise;
-
+uniform float uTime, uActivity, uStorm, uAlert;
+uniform vec3 uCore, uGlow;
+varying vec3 vNormal; varying vec3 vView; varying vec3 vPos; varying float vN;
 ${SNOISE}
-
 void main(){
-  vec3 N = normalize(vNormal);
-  vec3 V = normalize(vView);
-  float fres = pow(1.0 - max(dot(N, V), 0.0), 2.3);
+  vec3 N = normalize(vNormal); vec3 V = normalize(vView);
+  float fres = pow(1.0 - max(dot(N,V),0.0), 2.0);
+  float flow = fbm(vPos*2.3 + vec3(0.0,uTime*0.16,0.0))*0.5+0.5;
+  float sf = snoise(vPos*9.0 + vec3(uTime*0.05));
+  float stars = smoothstep(0.84,0.93,sf)*(0.5+0.5*sin(uTime*3.0+vN*10.0));
+  float storm = fbm(vPos*4.0+vec3(uTime*0.6))*uStorm;
+  vec3 col = mix(uCore*0.18, uCore, flow);
+  col += uGlow*stars*1.8;
+  col += uCore*storm*0.9;
+  col += uGlow*fres*(0.8+uActivity*1.4);
+  vec3 alertC = vec3(1.0,0.22,0.30);
+  col = mix(col, alertC*(0.7+0.5*sin(uTime*7.5)), uAlert);
+  // soft-edged: fade alpha at silhouette so the soul reads as wispy energy
+  float a = mix(0.92, 0.35, fres);
+  gl_FragColor = vec4(col, a);
+}`;
 
-  // interior nebula
-  float flow = fbm(vPos * 2.2 + vec3(0.0, uTime*0.15, 0.0)) * 0.5 + 0.5;
+/* ------------------------------ glass shell ----------------------------- */
+export const shellVertex = /* glsl */ `
+uniform float uTime, uWobble, uBreathe;
+varying vec3 vNormal; varying vec3 vView; varying vec3 vPos;
+${SNOISE}
+void main(){
+  vec3 p = position; float t = uTime;
+  float n = snoise(normal*2.0 + vec3(t*0.12));
+  p += normal * (n * uWobble + uBreathe*0.4);
+  vNormal = normalize(mat3(modelMatrix)*normal);
+  vec4 w = modelMatrix*vec4(p,1.0);
+  vView = normalize(cameraPosition - w.xyz);
+  vPos = normal;
+  gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0);
+}`;
 
-  // internal stars — sparse bright sparkles that twinkle
-  float sf = snoise(vPos * 9.0 + vec3(uTime*0.05));
-  float stars = smoothstep(0.86, 0.93, sf) * (0.55 + 0.45*sin(uTime*3.0 + vNoise*10.0));
+export const shellFragment = /* glsl */ `
+precision highp float;
+uniform float uTime, uFresnelPow, uRimGain, uRimAlpha, uBodyAlpha, uHue;
+uniform vec3 uGlow, uCore;
+varying vec3 vNormal; varying vec3 vView; varying vec3 vPos;
+${SNOISE}
+void main(){
+  vec3 N = normalize(vNormal); vec3 V = normalize(vView);
+  float f = pow(1.0 - max(dot(N,V),0.0), uFresnelPow);
+  // thin-film iridescence across the rim
+  vec3 irid = iridescence(f*1.1 + uHue + uTime*0.03);
+  vec3 rim = mix(uGlow, irid, 0.5) * f * uRimGain;
+  // faint internal energy veins
+  float veins = fbm(vPos*4.0 + vec3(uTime*0.1)) * 0.5 + 0.5;
+  vec3 body = uCore * 0.06 * veins;
+  // a crisp specular glint where the highlight sits
+  float glint = pow(max(dot(N, normalize(vec3(0.4,0.7,0.6))),0.0), 24.0);
+  rim += vec3(1.0) * glint * 0.6;
+  float alpha = clamp(f*f*uRimAlpha + uBodyAlpha + glint*0.4, 0.0, 1.0);
+  gl_FragColor = vec4(rim + body, alpha);
+}`;
 
-  // thinking storm streaks
-  float storm = fbm(vPos*4.0 + vec3(uTime*0.6)) * uStorm;
+/* ------------------------------ atmosphere ------------------------------ */
+export const atmoVertex = /* glsl */ `
+varying vec3 vNormal; varying vec3 vView;
+void main(){
+  vNormal = normalize(mat3(modelMatrix)*normal);
+  vec4 w = modelMatrix*vec4(position,1.0);
+  vView = normalize(cameraPosition - w.xyz);
+  gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);
+}`;
 
-  vec3 col = mix(uCore*0.22, uCore, flow);
-  col += uGlow * fres * (1.15 + uActivity*1.6) * uGlowGain; // rim glow (HDR → bloom)
-  col += uGlow * stars * 1.7;                               // internal stars
-  col += uCore * storm * 0.85;                              // storm energy
+export const atmoFragment = /* glsl */ `
+precision highp float;
+uniform vec3 uGlow; uniform float uGain;
+varying vec3 vNormal; varying vec3 vView;
+void main(){
+  vec3 N = normalize(vNormal); vec3 V = normalize(vView);
+  // backside sphere → glow strongest at the silhouette
+  float f = pow(1.0 - max(dot(N,-V),0.0), 3.2);
+  gl_FragColor = vec4(uGlow * f * uGain, f * 0.9);
+}`;
 
-  // alert overrides toward a red pulse
-  vec3 alertC = vec3(1.0, 0.24, 0.31);
-  float pulse = 0.5 + 0.5*sin(uTime*7.5);
-  col = mix(col, alertC * (0.7 + pulse*0.9), uAlert);
+/* ------------------------------ particles ------------------------------- */
+export const particleVertex = /* glsl */ `
+attribute float aSeed; attribute float aRadius;
+uniform float uTime, uStorm, uAudio, uSize;
+varying float vTw;
+void main(){
+  float speed = mix(1.7, 0.45, aRadius);      // closer to core = faster
+  float ang = uTime*speed + aSeed*6.28318;
+  vec3 p = position;
+  float c = cos(ang), s = sin(ang);
+  vec3 q = vec3(p.x*c - p.z*s, p.y, p.x*s + p.z*c);
+  q += normalize(p + 1e-4) * uStorm * (0.18 + 0.32*sin(uTime*3.0 + aSeed*10.0));
+  vec4 mv = modelViewMatrix * vec4(q, 1.0);
+  gl_Position = projectionMatrix * mv;
+  vTw = 0.5 + 0.5*sin(uTime*3.0 + aSeed*20.0);
+  gl_PointSize = uSize * (0.5 + aRadius) * (0.7 + uAudio*1.6) * (260.0 / -mv.z);
+}`;
 
-  gl_FragColor = vec4(col, uOpacity);
-}
-`;
+export const particleFragment = /* glsl */ `
+precision highp float;
+uniform vec3 uColor;
+varying float vTw;
+void main(){
+  vec2 uv = gl_PointCoord - 0.5;
+  float d = length(uv);
+  float a = smoothstep(0.5, 0.0, d);
+  gl_FragColor = vec4(uColor * (1.0 + vTw*0.8), a * (0.35 + 0.65*vTw));
+}`;

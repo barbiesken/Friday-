@@ -18,7 +18,7 @@ function Widget({
 }) {
   return (
     <motion.div
-      className="glass"
+      className="panel"
       initial={{ opacity: 0, scale: 0.92, filter: "blur(10px)" }}
       animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: [0, -drift, 0] }}
       transition={{
@@ -27,9 +27,9 @@ function Widget({
         filter: { duration: 0.8, delay },
         y: { duration: 7 + drift, repeat: Infinity, ease: "easeInOut", delay },
       }}
-      style={{ position: "fixed", padding: "13px 16px", zIndex: 4, width: 188, ...style }}
+      style={{ position: "fixed", padding: "14px 17px", zIndex: 4, width: 192, ...style }}
     >
-      <div className="hud-label" style={{ marginBottom: 8 }}>
+      <div className="panel__title" style={{ marginBottom: 10 }}>
         {title}
       </div>
       {children}
