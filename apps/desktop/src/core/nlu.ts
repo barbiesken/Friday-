@@ -39,7 +39,7 @@ export function route(utteranceRaw: string): Intent {
   if (has("brief", "my day", "good morning", "what's today", "whats today"))
     return {
       intent: "daily_brief",
-      reply: `${greet()}, Aaryan. Three meetings, two priorities. Energy is high until two. Your one thing today: ship the Sphere.`,
+      reply: `${greet()}, Aaryan. Three meetings, two priorities. Energy is high until two. Your one thing today: ship the core.`,
       emotion: "focused",
       command: "Assembling your daily brief",
       panel: "brief",

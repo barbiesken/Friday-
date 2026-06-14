@@ -73,7 +73,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   transcript: [],
   thinking: [],
   memories: [
-    { id: nextId(), text: "Sphere should illuminate the room, not the other way around.", kind: "idea", at: Date.now() - 3600_000 },
+    { id: nextId(), text: "The core should illuminate the room, not the other way around.", kind: "idea", at: Date.now() - 3600_000 },
     { id: nextId(), text: "Rebuild the core as five layers — energy, rings, streams, geometry, agents.", kind: "task", at: Date.now() - 1800_000 },
   ],
   lastWake: 0,

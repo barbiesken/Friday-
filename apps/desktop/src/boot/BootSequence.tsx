@@ -111,7 +111,7 @@ export function BootGreeting({ show }: { show: boolean }) {
               ["TODAY", "Fri · 14 Jun"],
               ["ENERGY", "High"],
               ["MEETINGS", "3"],
-              ["PRIORITY", "Ship the Sphere"],
+              ["PRIORITY", "Ship the core"],
             ].map(([k, v]) => (
               <div key={k} className="chip" style={{ flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
                 <span className="hud-label">{k}</span>

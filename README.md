@@ -15,11 +15,14 @@ machine. Voice-first. Visually cinematic. Local-first. Not a chatbot — a prese
 
 ## What this is
 
-FRIDAY is built around a single living object — **the Sphere** — whose color,
-motion and glow *are* the product's emotional language. It boots cinematically,
-listens on a wake word, thinks transparently, speaks back, and orchestrates your
-desktop. This repo contains a **runnable cinematic core** plus the architecture
-to grow it into the full JARVIS-class assistant.
+FRIDAY is built around a **living computational core** — not an orb, but a
+Stark-style AI core: a bright energy heart wrapped in gyroscopic computational
+rings, flowing data streams, holographic geometry that forms and dissolves, and
+agent satellites on their own orbits. Its motion *is* the product's language. It
+boots cinematically, listens on a wake word, thinks transparently (you literally
+see the rings accelerate), speaks back, and orchestrates your desktop. This repo
+contains a **runnable cinematic core** plus the architecture to grow it into the
+full JARVIS-class assistant.
 
 Read the decisions:
 [Vision](docs/VISION.md) ·
@@ -29,15 +32,20 @@ Read the decisions:
 
 ## What's built (Phase 0 — Cinematic Core)
 
-- 🟦 **The Sphere** — real GLSL shaders: noise-displaced energy surface, fresnel
-  glow, internal stars, thinking-storm turbulence, audio-reactive ripples, red
-  alert pulse — all **11 canonical states** + 7 emotional tints, with bloom.
-- 🎬 **Cinematic boot** — energy point → sphere forms → scan-lines → greeting (≤4s).
+- 🟦 **The computational core** — five GLSL/R3F layers driven in lock-step by state:
+  (1) energy reactor, (2) gyroscopic computational rings with data pulses, (3) ~2.6k
+  data-stream motes on orbits, (4) holographic geometry forming/dissolving, (5) agent
+  satellites — across **11 states** + emotional tints, with bloom + chromatic aberration.
+  Thinking accelerates the rings; listening stills them and brightens the heart;
+  speaking sends waves outward.
+- 🎬 **Cinematic boot** — energy point → core ignites → scan-lines → greeting (≤4s).
 - 🧠 **Nervous system** — a typed event bus + Zustand store wiring voice, state and visuals.
 - 🗣️ **Voice engine** — Web Speech STT/TTS, mic-level metering, interruptible speech,
-  a synthesized envelope that pulses the Sphere; **Space** to summon.
-- 🪟 **HUD + Command Center** — holographic chrome, orbiting glass widgets,
-  thinking-transparency (`Understanding… Planning… Executing…`).
+  a wake-cue blip, a synthesized envelope that pulses the core; **Space** to summon.
+- 🪟 **Interface around the core** — holographic HUD chrome, orbiting command-center
+  widgets, thinking-transparency, **workspaces** (Aura Field), and surfaces that
+  **emerge from the core** (Daily Brief, Second Brain, Permissions, Settings) +
+  a **command palette** (⌘K / `/`).
 - 🛰️ **Core service** — FastAPI with a swappable **provider abstraction**
   (Mock by default — runs with zero keys — or the latest Claude models),
   SQLite storage (Second Brain + Timeline), and a WebSocket event hub.

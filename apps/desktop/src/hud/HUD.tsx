@@ -78,7 +78,7 @@ export function HUD() {
         transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ position: "fixed", bottom: 28, left: 84, padding: "16px 20px", zIndex: 4, minWidth: 232 }}>
         <div className="panel__title">Current Task</div>
-        <div className="hud-value" style={{ fontSize: 17, marginTop: 9 }}>Ship the Sphere</div>
+        <div className="hud-value" style={{ fontSize: 17, marginTop: 9 }}>Ship the core</div>
         <div style={{ display: "flex", gap: 18, marginTop: 12 }}>
           <div><div className="hud-label">Focus</div><div className="hud-value accent" style={{ fontSize: 14 }}>42:18</div></div>
           <div><div className="hud-label">Next</div><div className="hud-value" style={{ fontSize: 14 }}>Standup · 11:00</div></div>
