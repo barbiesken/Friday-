@@ -1,0 +1,116 @@
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; width: 100%; margin: 0; }
+
+body {
+  background: var(--void);
+  color: var(--soft-white);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;
+  overflow: hidden;
+}
+
+/* The whole app stage */
+.friday-stage {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 38%, rgba(12, 28, 50, 0.55), rgba(4, 6, 10, 0) 60%),
+    var(--void);
+}
+
+/* The 3D canvas sits beneath all HUD chrome */
+.scene-layer { position: fixed; inset: 0; z-index: 1; }
+.hud-layer {
+  position: fixed; inset: 0; z-index: 2; pointer-events: none;
+}
+.hud-layer > * { pointer-events: auto; }
+
+/* ---- floating glass panels ---- */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid var(--glass-line);
+  border-radius: 18px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(127, 211, 255, 0.08);
+}
+
+/* ---- HUD chrome typography ---- */
+.hud-label {
+  font-family: var(--font-hud);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+.hud-value {
+  font-family: var(--font-hud);
+  font-variant-numeric: tabular-nums;
+  color: var(--soft-white);
+}
+.accent { color: var(--accent); }
+
+/* corner brackets for the holographic frame */
+.bracket {
+  position: fixed;
+  width: 38px; height: 38px;
+  border: 1px solid var(--glass-line);
+  z-index: 2; opacity: 0.5;
+  pointer-events: none;
+}
+.bracket.tl { top: 22px; left: 22px; border-right: 0; border-bottom: 0; }
+.bracket.tr { top: 22px; right: 22px; border-left: 0; border-bottom: 0; }
+.bracket.bl { bottom: 22px; left: 22px; border-right: 0; border-top: 0; }
+.bracket.br { bottom: 22px; right: 22px; border-left: 0; border-top: 0; }
+
+/* thin scanline veneer over the whole stage */
+.scanlines::after {
+  content: "";
+  position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(127, 211, 255, 0.025) 0px,
+    rgba(127, 211, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+
+/* generic small chip */
+.chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px; border-radius: 999px;
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-line);
+}
+
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  box-shadow: 0 0 12px var(--accent); }
+
+button.friday-btn {
+  font-family: var(--font-hud);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--soft-white);
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-line);
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease-cine), transform 0.2s var(--ease-cine),
+    box-shadow 0.25s var(--ease-cine);
+}
+button.friday-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 24px rgba(54, 185, 255, 0.25);
+  transform: translateY(-1px);
+}
+button.friday-btn:active { transform: translateY(0) scale(0.98); }
+
+::-webkit-scrollbar { width: 0; height: 0; }

@@ -1,0 +1,32 @@
+:root {
+  /* surfaces */
+  --void: #04060a;
+  --void-2: #0a0f1a;
+
+  /* energy */
+  --energy: #36b9ff;
+  --energy-soft: #7fd3ff;
+  --energy-deep: #0a4d8c;
+
+  /* text */
+  --soft-white: #eaf4ff;
+  --mute: #6b7d96;
+
+  /* signals */
+  --alert: #ff4d5e;
+  --success: #43e8b0;
+
+  /* glass */
+  --glass: rgba(18, 28, 44, 0.45);
+  --glass-strong: rgba(14, 22, 36, 0.7);
+  --glass-line: rgba(127, 211, 255, 0.18);
+
+  /* the live accent — driven by the active emotion (see orchestrator) */
+  --accent: var(--energy);
+
+  /* motion */
+  --ease-cine: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-hud: "Orbitron", "Space Grotesk", system-ui, sans-serif;
+  --font-ui: "Space Grotesk", -apple-system, "Inter", system-ui, sans-serif;
+}

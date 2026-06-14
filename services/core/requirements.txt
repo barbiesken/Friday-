@@ -1,0 +1,6 @@
+# FRIDAY core service — minimal, runs with zero API keys (MockProvider default).
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.29,<1.0
+
+# Optional real providers — install on demand, imported lazily:
+#   pip install anthropic   # for FRIDAY_PROVIDER=anthropic (latest Claude models)
