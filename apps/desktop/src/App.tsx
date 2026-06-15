@@ -14,6 +14,7 @@ import { startOrchestrator, bootComplete } from "./core/orchestrator";
 export function App() {
   const booted = useFriday((s) => s.booted);
   const setBooted = useFriday((s) => s.setBooted);
+  const night = useFriday((s) => s.night);
   const [showGreeting, setShowGreeting] = useState(false);
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export function App() {
   }, []);
 
   return (
-    <div className="friday-stage scanlines">
+    <div className={`friday-stage scanlines${night ? " night" : ""}`}>
       <div className="scene-layer">
         <SphereScene />
       </div>

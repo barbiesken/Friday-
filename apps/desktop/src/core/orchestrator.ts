@@ -88,13 +88,32 @@ function speakAndWait(text: string): Promise<void> {
   });
 }
 
+/** Reveal a FRIDAY line word-by-word (constructs itself as it's spoken). */
+function streamFridayLine(text: string): () => void {
+  const words = text.split(" ");
+  const st = useFriday.getState();
+  st.streamLine("friday", "");
+  let i = 0;
+  const id = window.setInterval(() => {
+    i++;
+    useFriday.getState().streamLine("friday", words.slice(0, i).join(" "));
+    if (i >= words.length) window.clearInterval(id);
+  }, 200);
+  return () => {
+    window.clearInterval(id);
+    useFriday.getState().streamLine("friday", text);
+  };
+}
+
 /** FRIDAY speaks `text` with `emotion`, then settles. No NLU. */
 async function respond(text: string, emotion: Emotion, settle?: AssistantState) {
   const st = useFriday.getState();
   st.clearThinking();
   go(st.night ? "whisper" : "speaking", emotion);
-  st.pushLine("friday", text);
+  const stop = streamFridayLine(text);
   await speakAndWait(text);
+  stop();
+  useFriday.getState().finalizeLine("friday");
 
   if (settle) {
     go(settle, settle === "sleep" ? "sleep" : "calm");

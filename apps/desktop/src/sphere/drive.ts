@@ -22,6 +22,7 @@ export const drive = {
   alert: 0,
   presence: 0, // attention toward the user (listening): rings still, core bright
   pulse: 0, // speaking voice envelope (outward waves)
+  burst: 0, // one-shot celebration shockwave
   activeAgent: null as string | null, // an agent dispatched to execute
 };
 
@@ -75,4 +76,5 @@ export function updateDrive(dt: number): void {
   drive.alert = damp(drive.alert, p.alert, 6, d);
   drive.breathe = Math.sin(drive.t * p.breatheSpeed) * p.breatheAmp;
   drive.pulse = state === "speaking" ? audioLevel : damp(drive.pulse, 0, 6, d);
+  drive.burst = state === "celebrating" ? 1 : damp(drive.burst, 0, 2, d);
 }

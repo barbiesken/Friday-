@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
- * The cinematic boot. Black → energy point → sphere forms (overlay clears to
- * reveal the live Sphere beneath) → scan lines → greeting. Entire sequence ≤ 4s.
+ * The cinematic boot. Black → energy point → the core ignites (overlay clears to
+ * reveal the live core beneath) → scan lines → greeting. Entire sequence ≤ 4s.
  */
 export function BootSequence({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<0 | 1 | 2 | 3>(0);
@@ -53,6 +53,23 @@ export function BootSequence({ onComplete }: { onComplete: () => void }) {
           />
         )}
       </AnimatePresence>
+
+      {/* ignition shockwave */}
+      {phase >= 1 && phase < 3 && (
+        <motion.div
+          initial={{ scale: 0, opacity: 0.9 }}
+          animate={{ scale: 14, opacity: 0 }}
+          transition={{ duration: 1.1, ease: "easeOut" }}
+          style={{
+            position: "absolute",
+            width: 56,
+            height: 56,
+            borderRadius: "50%",
+            border: "2px solid #7fd3ff",
+            boxShadow: "0 0 34px #36b9ff",
+          }}
+        />
+      )}
 
       {/* scan-line sweep */}
       {phase >= 1 && phase < 3 && (

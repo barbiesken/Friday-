@@ -13,7 +13,7 @@ export function Pulses() {
   const offsets = useMemo(() => Array.from({ length: N }, (_, i) => i / N), []);
 
   useFrame(() => {
-    const amount = drive.pulse * 0.9 + (drive.pulse > 0.015 ? 0.18 : 0);
+    const amount = Math.max(drive.pulse * 0.9 + (drive.pulse > 0.015 ? 0.18 : 0), drive.burst);
     for (let i = 0; i < N; i++) {
       const m = meshes.current[i];
       const mat = mats.current[i];
