@@ -18,6 +18,13 @@ class Settings:
     # The renderer origin allowed via CORS during development.
     renderer_origin: str = os.getenv("FRIDAY_RENDERER_ORIGIN", "http://localhost:5173")
 
+    # --- Real voice (server-side TTS; the key never reaches the browser) -----
+    # "mock" (default, silent → client falls back to Web Speech) | "google"
+    tts_provider: str = os.getenv("FRIDAY_TTS_PROVIDER", "mock")
+    tts_api_key: str = os.getenv("FRIDAY_TTS_API_KEY", "")
+    tts_voice: str = os.getenv("FRIDAY_TTS_VOICE", "")  # provider voice (optional)
+    tts_model: str = os.getenv("FRIDAY_TTS_MODEL", "")  # provider model (optional)
+
     @property
     def db_path(self) -> Path:
         return self.data_dir / "friday.db"

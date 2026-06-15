@@ -1,5 +1,6 @@
 import { bus } from "../core/eventBus";
 import { getRecognitionCtor, type SpeechRecognitionLike } from "./speech-types";
+import { serverTTSAvailable, synthesizeTTS } from "./tts";
 
 /**
  * VoiceEngine — STT (Web Speech), mic-level metering (Web Audio), and TTS with a
@@ -17,6 +18,8 @@ export class VoiceEngine {
   private meterRAF = 0;
   private speakRAF = 0;
   private cueCtx: AudioContext | null = null;
+  private playCtx: AudioContext | null = null;
+  private playSource: AudioBufferSourceNode | null = null;
   private listening = false;
 
   readonly canSTT: boolean;
@@ -153,15 +156,75 @@ export class VoiceEngine {
 
   speak(text: string, opts?: { rate?: number; pitch?: number; volume?: number }): void {
     bus.emit("tts/start", { text });
-    this.startSpeakEnvelope();
+    this.startSpeakEnvelope(); // random envelope while real audio is fetched
+    void this.speakViaServerOrFallback(text, opts);
+  }
 
+  /** Prefer the real (server) voice; fall back to Web Speech if unavailable. */
+  private async speakViaServerOrFallback(
+    text: string,
+    opts?: { rate?: number; pitch?: number; volume?: number },
+  ): Promise<void> {
+    try {
+      if (await serverTTSAvailable()) {
+        if (await this.speakViaServer(text)) return;
+      }
+    } catch {
+      /* fall through to Web Speech */
+    }
+    this.speakViaWebSpeech(text, opts);
+  }
+
+  /** Play server audio and drive the Sphere's pulse from its real amplitude. */
+  private async speakViaServer(text: string): Promise<boolean> {
+    const bytes = await synthesizeTTS(text);
+    if (!bytes) return false;
+    const ctx = this.ensurePlayCtx();
+    let buffer: AudioBuffer;
+    try {
+      buffer = await ctx.decodeAudioData(bytes.slice(0));
+    } catch {
+      return false;
+    }
+    cancelAnimationFrame(this.speakRAF); // stop the synthesized envelope
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    src.connect(analyser);
+    analyser.connect(ctx.destination);
+    this.playSource = src;
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      analyser.getByteTimeDomainData(data);
+      let sum = 0;
+      for (let i = 0; i < data.length; i++) {
+        const x = (data[i] - 128) / 128;
+        sum += x * x;
+      }
+      const rms = Math.sqrt(sum / data.length);
+      bus.emit("tts/level", { level: Math.max(0, Math.min(1, rms * 3.2)) });
+      this.speakRAF = requestAnimationFrame(tick);
+    };
+    src.onended = () => {
+      this.playSource = null;
+      this.endSpeak();
+    };
+    src.start();
+    tick();
+    return true;
+  }
+
+  private speakViaWebSpeech(
+    text: string,
+    opts?: { rate?: number; pitch?: number; volume?: number },
+  ): void {
     if (!this.canTTS) {
       // no synth — approximate duration so visuals still play
       const ms = Math.min(6000, 600 + text.length * 45);
       window.setTimeout(() => this.endSpeak(), ms);
       return;
     }
-
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.rate = opts?.rate ?? 1.02;
@@ -174,8 +237,22 @@ export class VoiceEngine {
     window.speechSynthesis.speak(u);
   }
 
+  private ensurePlayCtx(): AudioContext {
+    if (!this.playCtx) this.playCtx = new AudioContext();
+    if (this.playCtx.state === "suspended") void this.playCtx.resume();
+    return this.playCtx;
+  }
+
   cancelSpeak(): void {
     if (this.canTTS) window.speechSynthesis.cancel();
+    if (this.playSource) {
+      try {
+        this.playSource.stop();
+      } catch {
+        /* already stopped */
+      }
+      this.playSource = null;
+    }
     this.endSpeak();
   }
 

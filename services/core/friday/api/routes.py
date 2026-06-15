@@ -4,18 +4,24 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from pydantic import BaseModel
 
 from ..db import add_memory, list_memories, recent_events
 from ..events import hub
 from ..providers import get_provider
+from ..providers.tts import get_tts_provider
 
 router = APIRouter(prefix="/api")
 provider = get_provider()
+tts = get_tts_provider()
 
 
 class ChatIn(BaseModel):
+    text: str
+
+
+class TTSIn(BaseModel):
     text: str
 
 
@@ -32,7 +38,23 @@ class CommandIn(BaseModel):
 
 @router.get("/health")
 async def health() -> dict[str, Any]:
-    return {"ok": True, "provider": provider.name, "service": "friday-core"}
+    return {
+        "ok": True,
+        "provider": provider.name,
+        "service": "friday-core",
+        "tts": tts.name,
+        "tts_available": tts.available,
+    }
+
+
+@router.post("/tts")
+async def synthesize(body: TTSIn) -> Response:
+    """Real voice. Returns audio bytes, or 204 when no provider is configured
+    (the client then falls back to the browser's Web Speech synthesis)."""
+    audio = await tts.synthesize(body.text)
+    if not audio:
+        return Response(status_code=204)
+    return Response(content=audio, media_type=tts.media_type)
 
 
 @router.post("/chat")

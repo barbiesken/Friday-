@@ -40,8 +40,10 @@ Read the decisions:
   speaking sends waves outward.
 - 🎬 **Cinematic boot** — energy point → core ignites → scan-lines → greeting (≤4s).
 - 🧠 **Nervous system** — a typed event bus + Zustand store wiring voice, state and visuals.
-- 🗣️ **Voice engine** — Web Speech STT/TTS, mic-level metering, interruptible speech,
-  a wake-cue blip, a synthesized envelope that pulses the core; **Space** to summon.
+- 🗣️ **Voice engine** — real cinematic TTS (Google Gemini voices, server-side key)
+  with a Web-Speech fallback, mic-level metering, interruptible speech, a wake-cue
+  blip, an envelope driven by the **real voice amplitude** that pulses the core;
+  **Space** to summon. See [Real voice](#real-voice).
 - 🪟 **Interface around the core** — holographic HUD chrome, orbiting command-center
   widgets, thinking-transparency, **workspaces** (Aura Field), and surfaces that
   **emerge from the core** (Daily Brief, Second Brain, Permissions, Settings) +
@@ -49,6 +51,24 @@ Read the decisions:
 - 🛰️ **Core service** — FastAPI with a swappable **provider abstraction**
   (Mock by default — runs with zero keys — or the latest Claude models),
   SQLite storage (Second Brain + Timeline), and a WebSocket event hub.
+
+## Real voice
+
+FRIDAY speaks with a real, cinematic voice when the core service is running with a
+voice provider configured. The API key lives **only on the server** — it is never
+shipped to the browser. With no key, the renderer falls back to the browser's Web
+Speech synthesis, so everything still works offline.
+
+```bash
+cd services/core
+FRIDAY_TTS_PROVIDER=google FRIDAY_TTS_API_KEY=YOUR_GEMINI_KEY python -m friday.main
+```
+
+Then run the renderer (`npm run dev`). When CORE LINK connects it checks
+`/api/health`; if `tts_available` is true it streams audio from `/api/tts` and
+drives the core's pulse from the **actual voice amplitude**. Get a free key at
+[aistudio.google.com/apikey](https://aistudio.google.com/apikey); pick a voice with
+`FRIDAY_TTS_VOICE` (default `Kore`). See [`services/core/.env.example`](services/core/.env.example).
 
 ## Monorepo layout
 
