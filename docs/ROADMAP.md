@@ -19,20 +19,22 @@ The heart of FRIDAY, runnable in a browser today.
 
 ## Phase 1 — Conversational MVP
 
-- 🟡 Wire renderer ↔ FastAPI over WebSocket (live state + streaming)
-- ⬜ Real STT (whisper.cpp / faster-whisper) + premium TTS provider
-- ⬜ NLU intent router + first command chains ("start work mode")
-- ⬜ Daily Insight Engine ("Friday brief me")
-- ⬜ Second Brain capture + Timeline Memory
-- ⬜ Permissions panel
+- ✅ Wire renderer ↔ FastAPI over WebSocket (verified end-to-end)
+- ✅ NLU intent router + command chains ("start work mode")
+- ✅ Second Brain capture (client + SQLite) + notifications
+- ✅ Permissions panel
+- 🟡 Daily Insight Engine ("Friday brief me") — brief shipped; insight model next
+- ⬜ Real STT (whisper.cpp / faster-whisper) + premium streaming TTS provider
+- ⬜ Timeline Memory UI
 
 ## Phase 2 — Desktop Embodiment (Tauri)
 
-- ⬜ Tauri shell wraps the renderer (no rewrite)
-- ⬜ Global hotkey + **double-clap** wake (background audio listener)
-- ⬜ System control: apps, windows, volume, brightness, clipboard, notifications
+- 🟡 Tauri shell wraps the renderer — scaffolded (window, tray, native commands)
+- 🟡 Global hotkey (`Cmd/Ctrl+Shift+F`) done · **double-clap** wake next
+- 🟡 System control via `SystemBridge` — open-app / volume / focus wired;
+  brightness / windows / clipboard pending
 - ⬜ Mini-sphere always-on-top + Friday Dock
-- ⬜ Presence engine (active / idle / returning)
+- 🟡 Presence engine — returning-detection shipped (ambient); active/idle next
 
 ## Phase 3 — Awareness
 

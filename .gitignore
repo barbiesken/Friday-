@@ -10,6 +10,11 @@ build/
 apps/desktop/vite.config.js
 apps/desktop/vite.config.d.ts
 
+# rust / tauri
+target/
+**/target/
+apps/desktop/src-tauri/gen/
+
 # python
 __pycache__/
 **/__pycache__/

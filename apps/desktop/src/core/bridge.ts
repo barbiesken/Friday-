@@ -21,6 +21,12 @@ export function startBridge(): void {
   if (started || typeof window === "undefined") return;
   started = true;
   connect();
+
+  // In the Tauri shell, the global wake hotkey emits "friday://wake".
+  const tauri = (window as unknown as {
+    __TAURI__?: { event?: { listen?: (e: string, cb: () => void) => void } };
+  }).__TAURI__;
+  tauri?.event?.listen?.("friday://wake", () => bus.emit("voice/wake", { source: "hotkey" }));
 }
 
 function connect(): void {

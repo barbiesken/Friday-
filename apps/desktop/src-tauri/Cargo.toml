@@ -1,0 +1,25 @@
+[package]
+name = "friday"
+version = "0.1.0"
+description = "FRIDAY — desktop shell"
+authors = ["FRIDAY"]
+edition = "2021"
+rust-version = "1.70"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "1.5", features = [
+  "global-shortcut",
+  "system-tray",
+  "notification-all",
+  "shell-open",
+  "window-all",
+] }
+
+[features]
+# this feature is used for production builds where `devPath` points to the bundled assets
+custom-protocol = ["tauri/custom-protocol"]
