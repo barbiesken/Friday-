@@ -79,7 +79,11 @@ npm run dev          # → http://localhost:5173
 
 Press **Space** (or tap the ◉ mic) to summon FRIDAY, then try:
 *"Friday, brief me"* · *"focus mode"* · *"start work mode"* · *"remember this"* ·
-*"take command"* · *"good night"*. Or just type in the pill.
+*"take command"* · *"what did I do today"* · *"good night"*. Or just type in the pill.
+
+**Controls:** `Space` speak · `⌘K` / `/` command palette · `Esc` exits modes &
+surfaces · double-clap wake (enable in **Settings**) · the left rail opens
+Brief / Second Brain / Timeline / Permissions / Settings.
 
 **Core service** (optional — zero keys needed, uses the Mock provider):
 
