@@ -19,20 +19,32 @@ function lineGeom(pos: number[], col: number[]): THREE.BufferGeometry {
   return g;
 }
 
-/** Radial spokes — fine filaments from the heart outward, additive sunburst. */
+/** Radial spokes — a dense inner corona + main filaments, additive sunburst. */
 function buildSpokes(): THREE.BufferGeometry {
-  const N = 360;
   const pos: number[] = [];
   const col: number[] = [];
-  for (let i = 0; i < N; i++) {
-    const a = (i / N) * Math.PI * 2;
-    const r0 = 0.43 + Math.random() * 0.05;
-    const long = Math.random() > 0.85;
-    const r1 = long ? 1.18 + Math.random() * 0.55 : 0.6 + Math.random() * 0.55;
+  // inner corona — short, very dense, packs the heart with radial texture
+  const CN = 260;
+  for (let i = 0; i < CN; i++) {
+    const a = (i / CN) * Math.PI * 2 + Math.random() * 0.01;
+    const r0 = 0.3 + Math.random() * 0.05;
+    const r1 = 0.46 + Math.random() * 0.1;
     const ca = Math.cos(a), sa = Math.sin(a);
     pos.push(ca * r0, sa * r0, 0, ca * r1, sa * r1, 0);
-    const b = long ? 0.9 + Math.random() * 0.3 : 0.28 + Math.random() * 0.5;
-    col.push(b, b, b, 0.015, 0.015, 0.015); // bright at heart → dark at rim
+    const b = 0.5 + Math.random() * 0.5;
+    col.push(b, b, b, b * 0.3, b * 0.3, b * 0.3);
+  }
+  // main filaments — bright at the aperture, fading to the rim; some long rays
+  const N = 440;
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const r0 = 0.44 + Math.random() * 0.05;
+    const long = Math.random() > 0.84;
+    const r1 = long ? 1.2 + Math.random() * 0.6 : 0.6 + Math.random() * 0.58;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    pos.push(ca * r0, sa * r0, 0, ca * r1, sa * r1, 0);
+    const b = long ? 0.95 + Math.random() * 0.3 : 0.26 + Math.random() * 0.5;
+    col.push(b, b, b, 0.012, 0.012, 0.012);
   }
   return lineGeom(pos, col);
 }
@@ -40,10 +52,12 @@ function buildSpokes(): THREE.BufferGeometry {
 /** Concentric measurement rings made of ticks (every 5th tick longer/brighter). */
 function buildTicks(): THREE.BufferGeometry {
   const rings = [
-    { r: 0.7, n: 144, len: 0.026, b: 0.5 },
-    { r: 0.92, n: 192, len: 0.03, b: 0.42 },
-    { r: 1.16, n: 240, len: 0.022, b: 0.32 },
-    { r: 1.42, n: 96, len: 0.055, b: 0.24 },
+    { r: 0.56, n: 120, len: 0.02, b: 0.46 },
+    { r: 0.72, n: 160, len: 0.026, b: 0.46 },
+    { r: 0.9, n: 200, len: 0.03, b: 0.4 },
+    { r: 1.08, n: 240, len: 0.022, b: 0.34 },
+    { r: 1.26, n: 200, len: 0.026, b: 0.28 },
+    { r: 1.46, n: 110, len: 0.055, b: 0.22 },
   ];
   const pos: number[] = [];
   const col: number[] = [];
@@ -62,18 +76,21 @@ function buildTicks(): THREE.BufferGeometry {
   return lineGeom(pos, col);
 }
 
-/** Faint full circles binding the rings together. */
+/** Concentric circles + a bright aperture ring (the iris boundary). */
 function buildCircles(): THREE.BufferGeometry {
-  const radii = [0.7, 0.92, 1.16, 1.42];
+  const rings = [
+    { r: 0.42, b: 0.6 }, // aperture — the defined iris boundary
+    { r: 0.56, b: 0.14 }, { r: 0.72, b: 0.16 }, { r: 0.9, b: 0.15 },
+    { r: 1.08, b: 0.14 }, { r: 1.26, b: 0.12 }, { r: 1.46, b: 0.12 },
+  ];
   const seg = 220;
   const pos: number[] = [];
   const col: number[] = [];
-  for (const r of radii) {
+  for (const { r, b } of rings) {
     for (let i = 0; i < seg; i++) {
       const a0 = (i / seg) * Math.PI * 2;
       const a1 = ((i + 1) / seg) * Math.PI * 2;
       pos.push(Math.cos(a0) * r, Math.sin(a0) * r, 0, Math.cos(a1) * r, Math.sin(a1) * r, 0);
-      const b = 0.14;
       col.push(b, b, b, b, b, b);
     }
   }
