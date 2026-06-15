@@ -3,6 +3,7 @@ import { useFriday } from "./store";
 import { route, type Intent } from "./nlu";
 import { emotionThemes } from "./theme";
 import { applyWorkspace } from "./workspaces";
+import { applyWorld } from "./worlds";
 import { startAmbient } from "./ambient";
 import { startBridge } from "./bridge";
 import { system } from "../system/bridge";
@@ -163,6 +164,7 @@ async function handle(text: string) {
       useFriday.getState().setActiveAgent(null);
     }
     if (intent.workspace) applyWorkspace(intent.workspace);
+    if (intent.world) applyWorld(intent.world);
     if (intent.panel) useFriday.getState().setPanel(intent.panel);
     if (intent.layout) setLayout(intent.layout);
 

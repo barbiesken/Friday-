@@ -2,8 +2,16 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-/** Ambient depth — a slow-drifting field of stars behind the Sphere. */
-export function Starfield({ count = 1400, radius = 14 }: { count?: number; radius?: number }) {
+/** Ambient depth — a slow-drifting field of stars behind the core. */
+export function Starfield({
+  count = 1400,
+  radius = 14,
+  color = "#7fd3ff",
+}: {
+  count?: number;
+  radius?: number;
+  color?: string;
+}) {
   const ref = useRef<THREE.Points>(null);
 
   const { positions, sizes } = useMemo(() => {
@@ -36,7 +44,7 @@ export function Starfield({ count = 1400, radius = 14 }: { count?: number; radiu
         <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
       <pointsMaterial
-        color={"#7fd3ff"}
+        color={color}
         size={0.06}
         sizeAttenuation
         transparent

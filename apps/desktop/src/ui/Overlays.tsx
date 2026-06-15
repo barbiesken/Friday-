@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFriday } from "../core/store";
 import { applyWorkspace, WORKSPACES } from "../core/workspaces";
+import { applyWorld, WORLDS } from "../core/worlds";
 import { submitUserText, setClapWake } from "../core/orchestrator";
 import { bus } from "../core/eventBus";
 import type { PanelId, VoiceMode } from "../core/types";
@@ -151,9 +152,11 @@ function Settings() {
   const voiceMode = useFriday((s) => s.voiceMode);
   const setVoiceMode = useFriday((s) => s.setVoiceMode);
   const workspace = useFriday((s) => s.workspace);
+  const world = useFriday((s) => s.world);
   const clapWake = useFriday((s) => s.clapWake);
   const modes: VoiceMode[] = ["professional", "friendly", "jarvis"];
   const spaces = Object.values(WORKSPACES);
+  const worlds = Object.values(WORLDS);
   return (
     <div style={{ display: "grid", gap: 18 }}>
       <div>
@@ -188,6 +191,17 @@ function Settings() {
           {spaces.map((w) => (
             <button key={w.id} className="friday-btn" onClick={() => applyWorkspace(w.id)}
               style={{ borderColor: workspace === w.id ? "var(--accent)" : undefined, color: workspace === w.id ? "var(--accent)" : undefined }}>
+              {w.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div className="panel__title" style={{ marginBottom: 10 }}>World Engine</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+          {worlds.map((w) => (
+            <button key={w.id} className="friday-btn" onClick={() => applyWorld(w.id)}
+              style={{ borderColor: world === w.id ? "var(--accent)" : undefined, color: world === w.id ? "var(--accent)" : undefined }}>
               {w.label}
             </button>
           ))}

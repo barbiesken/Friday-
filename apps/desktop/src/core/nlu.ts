@@ -1,4 +1,4 @@
-import type { AssistantState, Emotion, LayoutMode, PanelId, WorkspaceId } from "./types";
+import type { AssistantState, Emotion, LayoutMode, PanelId, WorkspaceId, WorldTheme } from "./types";
 
 export interface Intent {
   intent: string;
@@ -12,6 +12,8 @@ export interface Intent {
   command?: string;
   /** a workspace transformation to apply */
   workspace?: WorkspaceId;
+  /** a World Engine environment to apply */
+  world?: WorldTheme;
   /** an overlay surface to open */
   panel?: PanelId;
   /** structured arguments for system effects (e.g. { app }) */
@@ -81,6 +83,18 @@ export function route(utteranceRaw: string): Intent {
         layout: "orbital",
         command: `Transforming workspace → ${id}`,
       };
+
+  // World Engine — environment themes
+  const worlds: Array<[WorldTheme, string[]]> = [
+    ["space", ["space world", "space mode", "outer space"]],
+    ["ocean", ["ocean world", "ocean mode", "underwater"]],
+    ["cyber", ["cyber world", "cyber mode", "cyberpunk"]],
+    ["library", ["library world", "library mode"]],
+    ["arc", ["arc reactor", "arc world", "default world"]],
+  ];
+  for (const [id, keys] of worlds)
+    if (has(...keys))
+      return { intent: `world_${id}`, reply: `${capitalize(id)} world.`, world: id, command: `Transforming world → ${id}` };
 
   if (has("show my memory", "my ideas", "my notes", "memory palace", "captured"))
     return { intent: "open_memory", reply: "Here's what you've captured.", panel: "memory" };

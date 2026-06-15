@@ -6,6 +6,8 @@ import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
 import { Core } from "../sphere/Core";
 import { Starfield } from "../sphere/Starfield";
+import { useFriday } from "../core/store";
+import { WORLDS } from "../core/worlds";
 
 /** Eases the camera toward the pointer for subtle motion depth (parallax). */
 function CameraRig() {
@@ -28,6 +30,7 @@ export function SphereScene() {
   const aberration = useRef(new THREE.Vector2(0.0008, 0.0006));
   // pause the render loop when the window is hidden → near-zero idle CPU/GPU
   const [frameloop, setFrameloop] = useState<"always" | "never">("always");
+  const world = WORLDS[useFriday((s) => s.world)];
   useEffect(() => {
     const onVis = () => setFrameloop(document.hidden ? "never" : "always");
     document.addEventListener("visibilitychange", onVis);
@@ -48,16 +51,16 @@ export function SphereScene() {
     >
       <Suspense fallback={null}>
         <CameraRig />
-        <Starfield />
+        <Starfield color={world.star} />
         <Grid
           position={[0, -1.9, 0]}
           args={[40, 40]}
           cellSize={0.55}
           cellThickness={0.5}
-          cellColor="#0c2740"
+          cellColor={world.grid}
           sectionSize={3}
           sectionThickness={1}
-          sectionColor="#1c6fa8"
+          sectionColor={world.section}
           fadeDistance={26}
           fadeStrength={4}
           infiniteGrid

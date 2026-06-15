@@ -9,6 +9,7 @@ import type {
   TranscriptLine,
   VoiceMode,
   WorkspaceId,
+  WorldTheme,
 } from "./types";
 
 let lineSeq = 0;
@@ -19,6 +20,7 @@ export interface FridayStore {
   emotion: Emotion;
   layout: LayoutMode;
   workspace: WorkspaceId;
+  world: WorldTheme;
   panel: PanelId | null;
   voiceMode: VoiceMode;
   /** double-clap wake enabled (opt-in, always-listening) */
@@ -40,6 +42,7 @@ export interface FridayStore {
   setEmotion: (e: Emotion) => void;
   setLayout: (m: LayoutMode) => void;
   setWorkspace: (w: WorkspaceId) => void;
+  setWorld: (w: WorldTheme) => void;
   setPanel: (p: PanelId | null) => void;
   setVoiceMode: (v: VoiceMode) => void;
   setClapWake: (v: boolean) => void;
@@ -72,6 +75,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   emotion: "calm",
   layout: "full",
   workspace: "default",
+  world: "arc",
   panel: null,
   voiceMode: "jarvis",
   clapWake: false,
@@ -93,6 +97,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   setEmotion: (emotion) => set({ emotion }),
   setLayout: (layout) => set({ layout }),
   setWorkspace: (workspace) => set({ workspace }),
+  setWorld: (world) => set({ world }),
   setPanel: (panel) => set({ panel }),
   setVoiceMode: (voiceMode) => set({ voiceMode }),
   setClapWake: (clapWake) => set({ clapWake }),

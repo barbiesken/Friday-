@@ -39,6 +39,9 @@ export type PanelId = "brief" | "memory" | "timeline" | "permissions" | "setting
 /** Voice personality. */
 export type VoiceMode = "professional" | "friendly" | "jarvis";
 
+/** World Engine — the immersive environment around the core. */
+export type WorldTheme = "arc" | "space" | "ocean" | "cyber" | "library";
+
 /** How a wake was triggered. */
 export type WakeSource = "wake-word" | "double-clap" | "hotkey" | "manual";
 
