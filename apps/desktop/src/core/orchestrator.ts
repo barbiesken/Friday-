@@ -7,6 +7,7 @@ import { startAmbient } from "./ambient";
 import { startBridge } from "./bridge";
 import { system } from "../system/bridge";
 import { voice } from "../voice/voiceEngine";
+import { clap } from "../voice/clap";
 import type { AssistantState, Emotion, LayoutMode, WakeSource } from "./types";
 
 let started = false;
@@ -171,6 +172,22 @@ export function submitUserText(text: string) {
 /** Public: trigger a wake manually (button / hotkey). */
 export function manualWake() {
   bus.emit("voice/wake", { source: "manual" });
+}
+
+/** Public: enable/disable always-listening double-clap wake (opt-in). */
+export async function setClapWake(on: boolean): Promise<void> {
+  useFriday.getState().setClapWake(on);
+  if (on) {
+    const ok = await clap.start();
+    if (!ok) {
+      useFriday.getState().setClapWake(false);
+      bus.emit("notify", { level: "warn", message: "Microphone unavailable for clap wake" });
+    } else {
+      bus.emit("notify", { level: "info", message: "Double-clap wake armed" });
+    }
+  } else {
+    clap.stop();
+  }
 }
 
 /** Public: FRIDAY greeting / ambient line (used by boot). */

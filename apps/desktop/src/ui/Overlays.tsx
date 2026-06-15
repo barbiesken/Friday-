@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFriday } from "../core/store";
 import { applyWorkspace, WORKSPACES } from "../core/workspaces";
-import { submitUserText } from "../core/orchestrator";
+import { submitUserText, setClapWake } from "../core/orchestrator";
 import type { PanelId, VoiceMode } from "../core/types";
 
 const TITLES: Record<PanelId, string> = {
@@ -119,10 +119,26 @@ function Settings() {
   const voiceMode = useFriday((s) => s.voiceMode);
   const setVoiceMode = useFriday((s) => s.setVoiceMode);
   const workspace = useFriday((s) => s.workspace);
+  const clapWake = useFriday((s) => s.clapWake);
   const modes: VoiceMode[] = ["professional", "friendly", "jarvis"];
   const spaces = Object.values(WORKSPACES);
   return (
     <div style={{ display: "grid", gap: 18 }}>
+      <div>
+        <div className="panel__title" style={{ marginBottom: 10 }}>Activation</div>
+        <div className="glass" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 12 }}>
+          <div>
+            <div style={{ fontSize: 15 }}>Double-clap wake</div>
+            <div className="hud-label" style={{ marginTop: 3 }}>Always-listening · two claps to summon</div>
+          </div>
+          <button onClick={() => void setClapWake(!clapWake)}
+            style={{ width: 46, height: 26, borderRadius: 999, cursor: "pointer", position: "relative",
+              border: "1px solid var(--glass-line)", background: clapWake ? "var(--accent)" : "rgba(10,16,28,0.7)", transition: "background .25s" }}>
+            <span style={{ position: "absolute", top: 2, left: clapWake ? 22 : 2, width: 20, height: 20, borderRadius: "50%", background: "#fff", transition: "left .2s var(--ease-cine)" }} />
+          </button>
+        </div>
+        <div className="hud-label" style={{ marginTop: 6, opacity: 0.6 }}>Also: Space to speak · ⌘K for commands</div>
+      </div>
       <div>
         <div className="panel__title" style={{ marginBottom: 10 }}>Voice</div>
         <div style={{ display: "flex", gap: 8 }}>
