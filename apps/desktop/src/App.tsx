@@ -8,6 +8,7 @@ import { Conversation } from "./voice/Conversation";
 import { Overlays } from "./ui/Overlays";
 import { Modes } from "./ui/Modes";
 import { Toasts } from "./ui/Toasts";
+import { Onboarding } from "./ui/Onboarding";
 import { ErrorBoundary } from "./ui/ErrorBoundary";
 import { useFriday } from "./core/store";
 import { startOrchestrator, bootComplete } from "./core/orchestrator";
@@ -58,6 +59,7 @@ export function App() {
             <Conversation />
             <Overlays />
             <Toasts />
+            <Onboarding />
           </>
         )}
         <BootGreeting show={showGreeting} />
