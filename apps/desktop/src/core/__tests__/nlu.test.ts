@@ -34,6 +34,14 @@ describe("nlu.route", () => {
     expect(route("good night").settle).toBe("sleep");
   });
 
+  it("opens the timeline surface", () => {
+    expect(route("what did i do today").panel).toBe("timeline");
+  });
+
+  it("exit / stand down returns to orbital", () => {
+    expect(route("stand down").layout).toBe("orbital");
+  });
+
   it("strips the wake word", () => {
     expect(route("hey friday, what time is it").intent).toBe("time");
   });

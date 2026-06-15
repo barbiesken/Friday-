@@ -6,6 +6,7 @@ const MODULES: Array<{ key: string; glyph: string; panel: PanelId | null; label:
   { key: "core", glyph: "◉", panel: null, label: "Core" },
   { key: "brief", glyph: "◳", panel: "brief", label: "Daily Brief" },
   { key: "memory", glyph: "◈", panel: "memory", label: "Second Brain" },
+  { key: "timeline", glyph: "◷", panel: "timeline", label: "Timeline" },
   { key: "permissions", glyph: "⛨", panel: "permissions", label: "Permissions" },
   { key: "settings", glyph: "⌬", panel: "settings", label: "Settings" },
 ];

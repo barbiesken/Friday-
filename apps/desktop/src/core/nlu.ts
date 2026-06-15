@@ -85,6 +85,9 @@ export function route(utteranceRaw: string): Intent {
   if (has("show my memory", "my ideas", "my notes", "memory palace", "captured"))
     return { intent: "open_memory", reply: "Here's what you've captured.", panel: "memory" };
 
+  if (has("timeline", "what did i do", "my journey", "what happened", "show my journey"))
+    return { intent: "open_timeline", reply: "Here's your day.", panel: "timeline" };
+
   if (has("permission", "privacy", "what can you access"))
     return { intent: "permissions", reply: "Your permissions. You're always in control.", panel: "permissions" };
 

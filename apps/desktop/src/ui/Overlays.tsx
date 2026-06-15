@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useFriday } from "../core/store";
 import { applyWorkspace, WORKSPACES } from "../core/workspaces";
 import { submitUserText, setClapWake } from "../core/orchestrator";
+import { bus } from "../core/eventBus";
 import type { PanelId, VoiceMode } from "../core/types";
 
 const TITLES: Record<PanelId, string> = {
-  brief: "Daily Brief", memory: "Second Brain", permissions: "Permissions", settings: "Settings", palette: "Command Palette",
+  brief: "Daily Brief", memory: "Second Brain", timeline: "Timeline", permissions: "Permissions",
+  settings: "Settings", palette: "Command Palette",
 };
 
 function ago(at: number): string {
@@ -77,6 +79,36 @@ function Memory() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+const TL_LABEL: Record<string, (p: Record<string, unknown>) => string> = {
+  "voice/wake": (p) => `Woke · ${p.source}`,
+  "command/run": (p) => String(p.label ?? "Ran a command"),
+  "assistant/layout": (p) => `Mode → ${p.mode}`,
+  "presence/change": (p) => `Presence · ${p.status}`,
+  "notify": (p) => String(p.message ?? ""),
+};
+
+function Timeline() {
+  const events = bus
+    .recent()
+    .filter((e) => e.name in TL_LABEL)
+    .slice(-30)
+    .reverse();
+  return (
+    <div style={{ display: "grid", gap: 8, maxHeight: 360, overflowY: "auto" }}>
+      {events.length === 0 && <div style={{ color: "var(--mute)", fontSize: 13 }}>Nothing yet today. Talk to me.</div>}
+      {events.map((e, i) => (
+        <div key={i} className="glass" style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 10 }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 8px var(--accent)" }} />
+          <span style={{ fontSize: 13, flex: 1, color: "var(--soft-white)" }}>
+            {TL_LABEL[e.name](e.payload as Record<string, unknown>)}
+          </span>
+          <span className="hud-label">{ago(e.at)}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -249,6 +281,7 @@ export function Overlays() {
             </div>
             {panel === "brief" && <Brief />}
             {panel === "memory" && <Memory />}
+            {panel === "timeline" && <Timeline />}
             {panel === "permissions" && <Permissions />}
             {panel === "settings" && <Settings />}
             {panel === "palette" && <Palette />}

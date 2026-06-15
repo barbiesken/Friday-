@@ -12,7 +12,7 @@ type Handler<K extends FridayEventName> = (payload: FridayEvents[K]) => void;
 class EventBus {
   private handlers = new Map<FridayEventName, Set<Handler<FridayEventName>>>();
   /** ring buffer of recent events — useful for the Timeline / debugging */
-  private log: Array<{ name: FridayEventName; at: number }> = [];
+  private log: Array<{ name: FridayEventName; at: number; payload: unknown }> = [];
   private readonly logCap = 200;
 
   on<K extends FridayEventName>(name: K, handler: Handler<K>): () => void {
@@ -39,7 +39,7 @@ class EventBus {
   }
 
   emit<K extends FridayEventName>(name: K, payload: FridayEvents[K]): void {
-    this.log.push({ name, at: Date.now() });
+    this.log.push({ name, at: Date.now(), payload });
     if (this.log.length > this.logCap) this.log.shift();
     const set = this.handlers.get(name);
     if (!set) return;
@@ -54,7 +54,7 @@ class EventBus {
     }
   }
 
-  recent(): ReadonlyArray<{ name: FridayEventName; at: number }> {
+  recent(): ReadonlyArray<{ name: FridayEventName; at: number; payload: unknown }> {
     return this.log;
   }
 }
