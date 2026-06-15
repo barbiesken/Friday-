@@ -8,9 +8,62 @@ import { bus } from "../core/eventBus";
 import type { PanelId, VoiceMode } from "../core/types";
 
 const TITLES: Record<PanelId, string> = {
-  brief: "Daily Brief", memory: "Second Brain", timeline: "Timeline", permissions: "Permissions",
-  settings: "Settings", palette: "Command Palette",
+  brief: "Daily Brief", memory: "Second Brain", timeline: "Timeline", vision: "Vision",
+  permissions: "Permissions", settings: "Settings", palette: "Command Palette",
 };
+
+function Vision() {
+  const [img, setImg] = useState<string | null>(null);
+  const [status, setStatus] = useState("Requesting your screen…");
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const md = navigator.mediaDevices as MediaDevices & {
+          getDisplayMedia?: (c: MediaStreamConstraints) => Promise<MediaStream>;
+        };
+        if (!md?.getDisplayMedia) {
+          setStatus("Screen capture isn't available here. In the Tauri shell this reads the active window directly.");
+          return;
+        }
+        stream = await md.getDisplayMedia({ video: true });
+        const video = document.createElement("video");
+        video.srcObject = stream;
+        await video.play();
+        await new Promise((r) => setTimeout(r, 300));
+        const c = document.createElement("canvas");
+        c.width = video.videoWidth || 1280;
+        c.height = video.videoHeight || 720;
+        c.getContext("2d")?.drawImage(video, 0, 0, c.width, c.height);
+        if (!cancelled) setImg(c.toDataURL("image/png"));
+        stream.getTracks().forEach((t) => t.stop());
+        setStatus("Understanding your screen…");
+        // a real vision provider plugs in here (send the frame to the core service)
+        setTimeout(() => !cancelled && setStatus("I can see your workspace. Ask me to summarize it, explain a selection, or suggest the next step."), 1100);
+      } catch {
+        setStatus("Screen capture was cancelled.");
+      } finally {
+        stream?.getTracks().forEach((t) => t.stop());
+      }
+    })();
+    return () => {
+      cancelled = true;
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
+  return (
+    <div style={{ display: "grid", gap: 14 }}>
+      <div style={{ aspectRatio: "16 / 9", borderRadius: 12, overflow: "hidden", border: "1px solid var(--glass-line)", background: "rgba(8,12,20,0.6)", display: "grid", placeItems: "center" }}>
+        {img ? <img src={img} alt="screen" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span className="hud-label">No frame yet</span>}
+      </div>
+      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+        <span className="dot" />
+        <span style={{ fontSize: 14, color: "var(--soft-white)" }}>{status}</span>
+      </div>
+    </div>
+  );
+}
 
 function ago(at: number): string {
   const m = Math.round((Date.now() - at) / 60000);
@@ -296,6 +349,7 @@ export function Overlays() {
             {panel === "brief" && <Brief />}
             {panel === "memory" && <Memory />}
             {panel === "timeline" && <Timeline />}
+            {panel === "vision" && <Vision />}
             {panel === "permissions" && <Permissions />}
             {panel === "settings" && <Settings />}
             {panel === "palette" && <Palette />}

@@ -34,7 +34,8 @@ export type LayoutMode = "mini" | "full" | "orbital" | "hud" | "flow" | "captain
 export type WorkspaceId = "default" | "focus" | "builder" | "study" | "movie" | "relax" | "night";
 
 /** Overlay surfaces opened from the module rail / command palette. */
-export type PanelId = "brief" | "memory" | "timeline" | "permissions" | "settings" | "palette";
+export type PanelId =
+  | "brief" | "memory" | "timeline" | "vision" | "permissions" | "settings" | "palette";
 
 /** Voice personality. */
 export type VoiceMode = "professional" | "friendly" | "jarvis";
