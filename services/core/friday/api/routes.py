@@ -52,7 +52,7 @@ async def brief() -> dict[str, Any]:
         "date": datetime.now().strftime("%a · %d %b"),
         "energy": "High",
         "meetings": 3,
-        "priority": "Ship the Sphere",
+        "priority": "Ship the core",
         "summary": text,
     }
 

@@ -27,6 +27,7 @@ export interface FridayStore {
   audioLevel: number;
   booted: boolean;
   night: boolean; // whisper / night mode
+  coreLink: boolean; // connected to the FastAPI core service
   metrics: SystemMetrics;
   transcript: TranscriptLine[];
   thinking: Array<{ phase: ThinkingPhase; label: string }>;
@@ -43,6 +44,7 @@ export interface FridayStore {
   setAudioLevel: (v: number) => void;
   setBooted: (v: boolean) => void;
   setNight: (v: boolean) => void;
+  setCoreLink: (v: boolean) => void;
   setMetrics: (m: SystemMetrics) => void;
 
   /** append a finished line */
@@ -73,6 +75,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   audioLevel: 0,
   booted: false,
   night: isNight(),
+  coreLink: false,
   metrics: { cpu: 0.12, mem: 0.34, net: 0.05, battery: 0.82 },
   transcript: [],
   thinking: [],
@@ -92,6 +95,7 @@ export const useFriday = create<FridayStore>((set, get) => ({
   setAudioLevel: (audioLevel) => set({ audioLevel }),
   setBooted: (booted) => set({ booted }),
   setNight: (night) => set({ night }),
+  setCoreLink: (coreLink) => set({ coreLink }),
   setMetrics: (metrics) => set({ metrics }),
 
   pushLine: (who, text) => {

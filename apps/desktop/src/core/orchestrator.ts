@@ -4,6 +4,7 @@ import { route, type Intent } from "./nlu";
 import { emotionThemes } from "./theme";
 import { applyWorkspace } from "./workspaces";
 import { startAmbient } from "./ambient";
+import { startBridge } from "./bridge";
 import { voice } from "../voice/voiceEngine";
 import type { AssistantState, Emotion, LayoutMode, WakeSource } from "./types";
 
@@ -170,6 +171,7 @@ export function startOrchestrator() {
 
   setAccent(useFriday.getState().emotion);
   startAmbient();
+  startBridge();
 
   bus.on("voice/level", ({ level }) => {
     if (useFriday.getState().state === "listening") useFriday.getState().setAudioLevel(level);

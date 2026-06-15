@@ -19,7 +19,7 @@ class MockProvider:
         if any(k in p for k in ("brief", "today", "my day")):
             return (
                 f"{_greeting()}, Aaryan. Three meetings, two priorities. "
-                "Energy is high until two. Your one thing today: ship the Sphere."
+                "Energy is high until two. Your one thing today: ship the core."
             )
         if any(k in p for k in ("next", "what should i", "what's left")):
             return "Finish the boot sequence. It's the highest-leverage thing left."

@@ -44,6 +44,7 @@ export function HUD() {
   const layout = useFriday((s) => s.layout);
   const metrics = useFriday((s) => s.metrics);
   const night = useFriday((s) => s.night);
+  const coreLink = useFriday((s) => s.coreLink);
   const now = useClock();
 
   if (layout === "flow") return null;
@@ -66,6 +67,12 @@ export function HUD() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {coreLink && (
+            <span className="chip" style={{ padding: "5px 10px" }}>
+              <span className="dot" style={{ background: "var(--success)", boxShadow: "0 0 10px var(--success)" }} />
+              <span className="hud-label" style={{ color: "var(--soft-white)" }}>CORE LINK</span>
+            </span>
+          )}
           <span className="hud-label">{night ? "WHISPER" : "ONLINE"}</span>
           <span className="hud-value glow-text" style={{ fontSize: 17, letterSpacing: "0.08em" }}>
             {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
