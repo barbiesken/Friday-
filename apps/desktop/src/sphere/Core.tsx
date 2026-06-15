@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { updateDrive, drive } from "./drive";
 import { atmoVertex, atmoFragment } from "./shaders";
 import { CoreReactor } from "./CoreReactor";
+import { Filaments } from "./Filaments";
 import { Rings } from "./Rings";
 import { DataStreams } from "./DataStreams";
 import { HoloGeometry } from "./HoloGeometry";
@@ -45,6 +46,7 @@ export function Core() {
       <Driver />
       <Atmosphere />
       <CoreReactor />
+      <Filaments />
       <Rings />
       <DataStreams />
       <HoloGeometry />

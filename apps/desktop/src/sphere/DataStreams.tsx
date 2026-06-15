@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { dataVertex, dataFragment } from "./shaders";
 import { drive } from "./drive";
 
-const COUNT = 2600;
+const COUNT = 3600;
 
 /** Layer 3 — data streams. Thousands of motes travelling orbits: light highways. */
 export function DataStreams() {
