@@ -7,6 +7,7 @@ import { CommandCenter } from "./command-center/CommandCenter";
 import { Conversation } from "./voice/Conversation";
 import { Overlays } from "./ui/Overlays";
 import { Modes } from "./ui/Modes";
+import { Toasts } from "./ui/Toasts";
 import { useFriday } from "./core/store";
 import { startOrchestrator, bootComplete } from "./core/orchestrator";
 
@@ -46,6 +47,7 @@ export function App() {
             <Modes />
             <Conversation />
             <Overlays />
+            <Toasts />
           </>
         )}
         <BootGreeting show={showGreeting} />

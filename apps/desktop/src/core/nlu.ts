@@ -14,6 +14,8 @@ export interface Intent {
   workspace?: WorkspaceId;
   /** an overlay surface to open */
   panel?: PanelId;
+  /** structured arguments for system effects (e.g. { app }) */
+  args?: Record<string, unknown>;
 }
 
 const hour = () => new Date().getHours();
@@ -135,6 +137,7 @@ export function route(utteranceRaw: string): Intent {
       reply: `Opening ${app}.`,
       emotion: "focused",
       command: `Launching ${app}`,
+      args: { app },
     };
   }
 

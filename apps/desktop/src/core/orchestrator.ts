@@ -5,6 +5,7 @@ import { emotionThemes } from "./theme";
 import { applyWorkspace } from "./workspaces";
 import { startAmbient } from "./ambient";
 import { startBridge } from "./bridge";
+import { system } from "../system/bridge";
 import { voice } from "../voice/voiceEngine";
 import type { AssistantState, Emotion, LayoutMode, WakeSource } from "./types";
 
@@ -50,6 +51,23 @@ function agentFor(intent: string): string | null {
   if (intent === "open_app" || intent.startsWith("work") || intent.startsWith("workspace") ||
       intent === "transform_workspace" || intent === "focus_mode" || intent === "captain_mode") return "Builder";
   return null;
+}
+
+/** Route an intent's side-effects through the system bridge (OS control). */
+function runEffects(intent: Intent): void {
+  switch (intent.intent) {
+    case "open_app":
+      void system.openApp(String(intent.args?.app ?? "app"));
+      break;
+    case "work_mode":
+      void system.runChain("Command chain · start work mode", [
+        "Open VS Code", "Open browser", "Open calendar", "Start Deep Focus", "Activate focus",
+      ]);
+      break;
+    case "focus_mode":
+      void system.focusMode(true);
+      break;
+  }
 }
 
 function speakAndWait(text: string): Promise<void> {
@@ -119,6 +137,7 @@ async function handle(text: string) {
       if (agent) useFriday.getState().setActiveAgent(agent);
       st.addThinking("executing", intent.command);
       bus.emit("command/run", { id: intent.intent, label: intent.command });
+      void runEffects(intent);
       await delay(620);
       bus.emit("command/done", { id: intent.intent });
       useFriday.getState().setActiveAgent(null);
