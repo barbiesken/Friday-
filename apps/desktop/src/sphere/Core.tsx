@@ -24,12 +24,12 @@ function Atmosphere() {
   useFrame(() => {
     if (mat.current) {
       (mat.current.uniforms.uGlow.value as THREE.Color).copy(drive.glow);
-      mat.current.uniforms.uGain.value = 0.5 + drive.activity * 1.1 + drive.alert * 0.6;
+      mat.current.uniforms.uGain.value = 0.14 + drive.activity * 0.4 + drive.alert * 0.35;
     }
   });
   return (
     <mesh renderOrder={0}>
-      <sphereGeometry args={[1.5, 64, 64]} />
+      <sphereGeometry args={[1.12, 64, 64]} />
       <shaderMaterial ref={mat} vertexShader={atmoVertex} fragmentShader={atmoFragment}
         uniforms={u} transparent depthWrite={false} side={THREE.BackSide} blending={THREE.AdditiveBlending} />
     </mesh>
@@ -42,7 +42,7 @@ function Atmosphere() {
  */
 export function Core() {
   return (
-    <group>
+    <group scale={0.62}>
       <Driver />
       <Atmosphere />
       <CoreReactor />

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { dataVertex, dataFragment } from "./shaders";
 import { drive } from "./drive";
 
-const COUNT = 3600;
+const COUNT = 600;
 
 /** Layer 3 — data streams. Thousands of motes travelling orbits: light highways. */
 export function DataStreams() {
@@ -39,7 +39,7 @@ export function DataStreams() {
     if (mat.current) {
       mat.current.uniforms.uTime.value = drive.t;
       mat.current.uniforms.uFlow.value = drive.flow;
-      mat.current.uniforms.uSize.value = 4 + drive.audio * 5 + drive.activity * 2;
+      mat.current.uniforms.uSize.value = 1.6 + drive.audio * 3 + drive.activity * 1.2;
       (mat.current.uniforms.uColor.value as THREE.Color).copy(drive.glow);
     }
   });

@@ -40,7 +40,7 @@ export function CoreReactor() {
 
   return (
     <mesh ref={mesh} renderOrder={2}>
-      <icosahedronGeometry args={[0.42, 12]} />
+      <icosahedronGeometry args={[0.32, 12]} />
       <shaderMaterial ref={mat} vertexShader={coreVertex} fragmentShader={coreFragment}
         uniforms={u} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
     </mesh>

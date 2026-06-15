@@ -15,7 +15,7 @@ const TUNE = {
   coronaCount: 280, // short dense spokes that pack the heart
   longChance: 0.16, // fraction of filaments that shoot far past the rim
   pupil: 0.34, // inner radius where the corona begins (the dark aperture gap)
-  heartScale: 0.8, // base size of the white-hot core (smaller = less "marble")
+  heartScale: 0.5, // crisp hot-point over the plasma core (sits inside the aperture)
   heartWhiteMix: 0.72, // 0 = palette colour, 1 = pure white
   apertureBright: 0.72, // brightness of the iris boundary ring
   spinA: 0.035, // base rad/s of the spokes + circles layer
@@ -48,7 +48,7 @@ function buildSpokes(): THREE.BufferGeometry {
     const r1 = TUNE.pupil + 0.16 + Math.random() * 0.1;
     const ca = Math.cos(a), sa = Math.sin(a);
     pos.push(ca * r0, sa * r0, 0, ca * r1, sa * r1, 0);
-    const b = 0.5 + Math.random() * 0.5;
+    const b = 0.3 + Math.random() * 0.4;
     col.push(b, b, b, b * 0.3, b * 0.3, b * 0.3);
   }
   // main filaments — bright at the aperture, fading to the rim; some long rays
@@ -174,7 +174,7 @@ export function Filaments() {
     }
     if (heartMat.current) {
       heartMat.current.color.copy(drive.color).lerp(WHITE, TUNE.heartWhiteMix);
-      heartMat.current.opacity = Math.min(1, 0.7 + drive.activity * 0.4);
+      heartMat.current.opacity = Math.min(1, 0.45 + drive.activity * 0.3);
     }
     if (heartSprite.current) {
       const s = TUNE.heartScale * (1 + drive.breathe * 1.05 + drive.audio * 0.22 + drive.alert * 0.18);

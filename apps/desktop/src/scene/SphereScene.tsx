@@ -1,8 +1,8 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
-import { EffectComposer, Bloom, ChromaticAberration, Vignette, Noise } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
+import { EffectComposer, Bloom, ChromaticAberration, Vignette, Noise, ToneMapping } from "@react-three/postprocessing";
+import { BlendFunction, ToneMappingMode } from "postprocessing";
 import * as THREE from "three";
 import { Core } from "../sphere/Core";
 import { Starfield } from "../sphere/Starfield";
@@ -67,7 +67,8 @@ export function SphereScene() {
         />
         <Core />
         <EffectComposer multisampling={0}>
-          <Bloom intensity={1.15} luminanceThreshold={0.18} luminanceSmoothing={0.3} mipmapBlur radius={0.78} />
+          <Bloom intensity={0.5} luminanceThreshold={0.5} luminanceSmoothing={0.26} mipmapBlur radius={0.4} />
+          <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
           <ChromaticAberration offset={aberration.current} radialModulation modulationOffset={0.4} />
           <Noise premultiply blendFunction={BlendFunction.SCREEN} opacity={0.045} />
           <Vignette eskil={false} offset={0.22} darkness={0.92} />

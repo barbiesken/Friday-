@@ -62,10 +62,10 @@ void main(){
   float center = pow(facing, 1.7);                 // white-hot heart toward the eye
   float flow = fbm(vPos*3.0 + vec3(0.0,uTime*0.5,0.0))*0.5 + 0.5;
   float fil = pow(fbm(vPos*6.0 + vec3(uTime*0.8)), 2.0); // plasma filaments
-  vec3 col = mix(uGlow, vec3(1.4,1.5,1.6), center*0.85); // core blue-white
-  col *= (0.5 + uActivity*1.7);
-  col += uGlow * flow * 0.5 + uCore * fil * 0.7;
-  col += vec3(1.0) * pow(facing, 6.0) * (0.6 + uPulse*1.5); // bright specular pop, pulses with voice
+  vec3 col = mix(uGlow, vec3(1.15,1.25,1.4), center*0.7); // core blue-white
+  col *= (0.28 + uActivity*0.8);
+  col += uGlow * flow * 0.25 + uCore * fil * 0.4;
+  col += vec3(1.0) * pow(facing, 6.0) * (0.3 + uPulse*1.0); // bright specular pop, pulses with voice
   vec3 alertC = vec3(1.0, 0.20, 0.26);
   col = mix(col, alertC*(0.9+0.6*sin(uTime*8.0)), uAlert);
   float a = mix(0.95, 0.4, 1.0-facing);
@@ -110,7 +110,7 @@ void main(){
   gl_Position = projectionMatrix*mv;
   vSeed = aSeed;
   vHead = 0.5 + 0.5*sin(ang*1.0 + aSeed*30.0);            // travels bright→dim like a comet
-  gl_PointSize = uSize * (0.5+aRadius) * (0.6+vHead) * (240.0/-mv.z);
+  gl_PointSize = uSize * (0.5+aRadius) * (0.6+vHead) * (13.0/-mv.z); // fine travelling motes (not frame-filling sprites)
 }`;
 
 export const dataFragment = /* glsl */ `
@@ -121,7 +121,7 @@ void main(){
   vec2 uv = gl_PointCoord-0.5; float d=length(uv);
   float a = smoothstep(0.5,0.0,d);
   vec3 col = mix(uColor, uWhite, step(0.78, vSeed));   // a few white "data" motes
-  gl_FragColor = vec4(col*(0.6+vHead*1.2), a*(0.3+vHead*0.7));
+  gl_FragColor = vec4(col*(0.5+vHead*1.0), a*(0.12+vHead*0.4));
 }`;
 
 /* ----------------------------- atmosphere ------------------------------ */
