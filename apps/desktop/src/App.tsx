@@ -8,6 +8,7 @@ import { Conversation } from "./voice/Conversation";
 import { Overlays } from "./ui/Overlays";
 import { Modes } from "./ui/Modes";
 import { Toasts } from "./ui/Toasts";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
 import { useFriday } from "./core/store";
 import { startOrchestrator, bootComplete } from "./core/orchestrator";
 
@@ -24,7 +25,15 @@ export function App() {
   return (
     <div className={`friday-stage scanlines${night ? " night" : ""}`}>
       <div className="scene-layer">
-        <SphereScene />
+        <ErrorBoundary
+          fallback={
+            <div style={{ position: "fixed", inset: 0, display: "grid", placeItems: "center" }}>
+              <span className="hud-label">Core offline · renderer unavailable</span>
+            </div>
+          }
+        >
+          <SphereScene />
+        </ErrorBoundary>
       </div>
 
       {/* colour atmosphere over the canvas */}

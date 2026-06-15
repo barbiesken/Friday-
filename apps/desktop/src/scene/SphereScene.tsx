@@ -1,4 +1,4 @@
-import { Suspense, useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Grid } from "@react-three/drei";
 import { EffectComposer, Bloom, ChromaticAberration, Vignette, Noise } from "@react-three/postprocessing";
@@ -26,8 +26,16 @@ function CameraRig() {
  */
 export function SphereScene() {
   const aberration = useRef(new THREE.Vector2(0.0008, 0.0006));
+  // pause the render loop when the window is hidden → near-zero idle CPU/GPU
+  const [frameloop, setFrameloop] = useState<"always" | "never">("always");
+  useEffect(() => {
+    const onVis = () => setFrameloop(document.hidden ? "never" : "always");
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
   return (
     <Canvas
+      frameloop={frameloop}
       dpr={[1, 2]}
       gl={{
         antialias: true,
