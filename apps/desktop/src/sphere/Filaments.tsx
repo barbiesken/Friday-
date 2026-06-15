@@ -6,6 +6,23 @@ import { drive } from "./drive";
 const WHITE = new THREE.Color("#ffffff");
 
 /**
+ * Tunables — nudge these to taste, then `npm run dev`. Defaults aim for the
+ * engineered-star / arc-reactor reference: a small white-hot core with a clean
+ * pupil gap, a machined aperture ring, and dense fine filaments.
+ */
+const TUNE = {
+  spokeCount: 460, // main radial filaments
+  coronaCount: 280, // short dense spokes that pack the heart
+  longChance: 0.16, // fraction of filaments that shoot far past the rim
+  pupil: 0.34, // inner radius where the corona begins (the dark aperture gap)
+  heartScale: 0.8, // base size of the white-hot core (smaller = less "marble")
+  heartWhiteMix: 0.72, // 0 = palette colour, 1 = pure white
+  apertureBright: 0.72, // brightness of the iris boundary ring
+  spinA: 0.035, // base rad/s of the spokes + circles layer
+  spinB: 0.028, // base rad/s of the tick layer (counter-rotates)
+};
+
+/**
  * Layer 1.5 — the computational cathedral. A dense, camera-facing radial
  * structure: hundreds of fine filament spokes, concentric measurement rings and
  * tick marks, and a white-hot heart. This is what makes the core read as an
@@ -24,22 +41,22 @@ function buildSpokes(): THREE.BufferGeometry {
   const pos: number[] = [];
   const col: number[] = [];
   // inner corona — short, very dense, packs the heart with radial texture
-  const CN = 260;
+  const CN = TUNE.coronaCount;
   for (let i = 0; i < CN; i++) {
     const a = (i / CN) * Math.PI * 2 + Math.random() * 0.01;
-    const r0 = 0.3 + Math.random() * 0.05;
-    const r1 = 0.46 + Math.random() * 0.1;
+    const r0 = TUNE.pupil + Math.random() * 0.05;
+    const r1 = TUNE.pupil + 0.16 + Math.random() * 0.1;
     const ca = Math.cos(a), sa = Math.sin(a);
     pos.push(ca * r0, sa * r0, 0, ca * r1, sa * r1, 0);
     const b = 0.5 + Math.random() * 0.5;
     col.push(b, b, b, b * 0.3, b * 0.3, b * 0.3);
   }
   // main filaments — bright at the aperture, fading to the rim; some long rays
-  const N = 440;
+  const N = TUNE.spokeCount;
   for (let i = 0; i < N; i++) {
     const a = (i / N) * Math.PI * 2;
     const r0 = 0.44 + Math.random() * 0.05;
-    const long = Math.random() > 0.84;
+    const long = Math.random() < TUNE.longChance;
     const r1 = long ? 1.2 + Math.random() * 0.6 : 0.6 + Math.random() * 0.58;
     const ca = Math.cos(a), sa = Math.sin(a);
     pos.push(ca * r0, sa * r0, 0, ca * r1, sa * r1, 0);
@@ -79,7 +96,8 @@ function buildTicks(): THREE.BufferGeometry {
 /** Concentric circles + a bright aperture ring (the iris boundary). */
 function buildCircles(): THREE.BufferGeometry {
   const rings = [
-    { r: 0.42, b: 0.6 }, // aperture — the defined iris boundary
+    { r: 0.39, b: TUNE.apertureBright * 0.45 }, // machined inner aperture line
+    { r: 0.42, b: TUNE.apertureBright }, // aperture — the defined iris boundary
     { r: 0.56, b: 0.14 }, { r: 0.72, b: 0.16 }, { r: 0.9, b: 0.15 },
     { r: 1.08, b: 0.14 }, { r: 1.26, b: 0.12 }, { r: 1.46, b: 0.12 },
   ];
@@ -104,9 +122,11 @@ function heartTexture(): THREE.Texture {
   c.width = c.height = s;
   const ctx = c.getContext("2d")!;
   const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  // tight falloff — a crisp hot point, not a soft blue marble
   g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.25, "rgba(220,242,255,0.9)");
-  g.addColorStop(0.55, "rgba(120,200,255,0.35)");
+  g.addColorStop(0.16, "rgba(236,248,255,0.96)");
+  g.addColorStop(0.4, "rgba(150,212,255,0.4)");
+  g.addColorStop(0.72, "rgba(60,140,225,0.08)");
   g.addColorStop(1, "rgba(40,120,220,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, s, s);
@@ -135,8 +155,8 @@ export function Filaments() {
   useFrame((_, dt) => {
     const d = Math.min(dt, 0.05);
     if (billboard.current) billboard.current.quaternion.copy(camera.quaternion); // face camera
-    if (spinA.current) spinA.current.rotation.z += d * (0.04 + drive.ringSpeed * 0.12);
-    if (spinB.current) spinB.current.rotation.z -= d * (0.03 + drive.ringSpeed * 0.08);
+    if (spinA.current) spinA.current.rotation.z += d * (TUNE.spinA + drive.ringSpeed * 0.12);
+    if (spinB.current) spinB.current.rotation.z -= d * (TUNE.spinB + drive.ringSpeed * 0.08);
 
     tint.copy(drive.glow);
     const bright = 0.5 + drive.activity * 0.85 + drive.alert * 0.7 + drive.audio * 0.35;
@@ -153,11 +173,11 @@ export function Filaments() {
       circleMat.current.opacity = 0.35 + bright * 0.25;
     }
     if (heartMat.current) {
-      heartMat.current.color.copy(drive.color).lerp(WHITE, 0.5);
+      heartMat.current.color.copy(drive.color).lerp(WHITE, TUNE.heartWhiteMix);
       heartMat.current.opacity = Math.min(1, 0.7 + drive.activity * 0.4);
     }
     if (heartSprite.current) {
-      const s = 1.05 + drive.breathe * 1.2 + drive.audio * 0.25 + drive.alert * 0.2;
+      const s = TUNE.heartScale * (1 + drive.breathe * 1.05 + drive.audio * 0.22 + drive.alert * 0.18);
       const cur = heartSprite.current.scale.x || 1;
       heartSprite.current.scale.setScalar(THREE.MathUtils.damp(cur, s, 7, d));
     }
@@ -181,7 +201,7 @@ export function Filaments() {
             blending={THREE.AdditiveBlending} opacity={0.8} />
         </lineSegments>
       </group>
-      <sprite ref={heartSprite} scale={1.1}>
+      <sprite ref={heartSprite} scale={TUNE.heartScale}>
         <spriteMaterial ref={heartMat} map={heart} transparent depthWrite={false}
           blending={THREE.AdditiveBlending} opacity={0.85} />
       </sprite>
