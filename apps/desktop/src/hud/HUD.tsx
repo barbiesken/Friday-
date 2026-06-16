@@ -80,8 +80,8 @@ export function HUD() {
         </div>
       </div>
 
-      {/* bottom corners are hidden in orbital — the OrbitalDeck owns that space */}
-      {layout !== "orbital" && (
+      {/* bottom corners are hidden in orbital + captain — those layouts own that space */}
+      {layout !== "orbital" && layout !== "captain" && (
         <>
       {/* bottom-left: current task */}
       <motion.div className="panel" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
