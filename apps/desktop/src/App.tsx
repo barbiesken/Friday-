@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { SphereScene } from "./scene/SphereScene";
 import { BootSequence, BootGreeting } from "./boot/BootSequence";
 import { HUD } from "./hud/HUD";
+import { OrbitalDeck } from "./hud/OrbitalDeck";
 import { ModuleRail } from "./hud/ModuleRail";
 import { CommandCenter } from "./command-center/CommandCenter";
 import { Conversation } from "./voice/Conversation";
@@ -54,6 +55,7 @@ export function App() {
           <>
             <ModuleRail />
             <HUD />
+            <OrbitalDeck />
             <CommandCenter />
             <Modes />
             <Conversation />

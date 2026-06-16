@@ -80,6 +80,9 @@ export function HUD() {
         </div>
       </div>
 
+      {/* bottom corners are hidden in orbital — the OrbitalDeck owns that space */}
+      {layout !== "orbital" && (
+        <>
       {/* bottom-left: current task */}
       <motion.div className="panel" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -104,6 +107,8 @@ export function HUD() {
           {metrics.battery !== undefined && <Vital label="BAT" value={metrics.battery} />}
         </div>
       </motion.div>
+        </>
+      )}
     </motion.div>
   );
 }
