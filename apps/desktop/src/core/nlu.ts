@@ -195,10 +195,30 @@ export function route(utteranceRaw: string): Intent {
   if (has("thank", "thanks"))
     return { intent: "thanks", reply: "Always.", emotion: "calm" };
 
-  // graceful fallback — acknowledge, stay brief
+  if (/^(hi|hello|hey|yo|hiya|greetings)\b/.test(u))
+    return { intent: "greeting", reply: `${greet()}, Aaryan. How can I help?`, emotion: "calm" };
+
+  if (/(how are you|how'?s it going|how you doing|you doing|you good|you okay)/.test(u))
+    return {
+      intent: "status_check",
+      reply: "Running clean — all systems nominal. What do you need?",
+      emotion: "calm",
+    };
+
+  if (/(what can you do|what do you do|^help\b|^commands\b|capabilities|how do you work)/.test(u))
+    return {
+      intent: "capabilities",
+      reply:
+        "I can brief your day, switch workspaces and worlds, capture notes, open apps, and run focus or captain mode. Try “brief me” or “cyber world”.",
+      emotion: "curious",
+    };
+
+  // graceful fallback — never parrot the user; point them at what works on-device.
+  // (When the core service is linked, the orchestrator routes unknowns to the
+  // real provider before ever reaching this line.)
   return {
     intent: "fallback",
-    reply: `On it. ${capitalize(u)} — I'll take it from here.`,
+    reply: "I can't answer that from my on-device reflexes yet. Try “brief me”, “focus mode”, or “what can you do”.",
     emotion: "curious",
   };
 }

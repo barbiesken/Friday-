@@ -5,7 +5,7 @@ import { emotionThemes } from "./theme";
 import { applyWorkspace } from "./workspaces";
 import { applyWorld } from "./worlds";
 import { startAmbient } from "./ambient";
-import { startBridge } from "./bridge";
+import { startBridge, coreChat } from "./bridge";
 import { system } from "../system/bridge";
 import { voice } from "../voice/voiceEngine";
 import { clap } from "../voice/clap";
@@ -142,6 +142,18 @@ async function handle(text: string) {
     await delay(300);
 
     const intent = route(text);
+
+    // Unknown to the on-device router? If the core service is linked, let the
+    // real provider answer instead of handing back the canned fallback line.
+    if (intent.intent === "fallback" && useFriday.getState().coreLink) {
+      st.addThinking("executing", "Core service · generating");
+      const reply = await coreChat(text);
+      if (reply) {
+        await respond(reply, "calm");
+        return;
+      }
+    }
+
     if (intent.intent === "second_brain") {
       const note = text
         .replace(/^\s*(hey\s+)?friday[,\s]*/i, "")

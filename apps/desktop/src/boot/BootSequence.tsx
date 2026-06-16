@@ -105,7 +105,7 @@ export function BootGreeting({ show }: { show: boolean }) {
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
           style={{
             position: "fixed",
-            top: "16%",
+            top: "58%",
             left: 0,
             right: 0,
             textAlign: "center",
@@ -113,30 +113,30 @@ export function BootGreeting({ show }: { show: boolean }) {
             pointerEvents: "none",
           }}
         >
+          {/* Elegant, light, near-white — the cinematic greeting, not a dashboard. */}
           <div
             style={{
-              fontFamily: "var(--font-hud)",
-              fontSize: "clamp(22px, 3.4vw, 40px)",
-              fontWeight: 600,
-              letterSpacing: "0.04em",
+              fontFamily: "var(--font-ui)",
+              fontSize: "clamp(30px, 4.6vw, 60px)",
+              fontWeight: 300,
+              letterSpacing: "0.005em",
+              color: "var(--soft-white)",
+              textShadow: "0 0 44px rgba(54,185,255,0.20)",
             }}
           >
-            {greeting}, <span className="accent">Aaryan</span>.
+            {greeting}, Aaryan.
           </div>
-          <div style={{ marginTop: 14, display: "flex", gap: 10, justifyContent: "center" }}>
-            {[
-              ["TODAY", "Fri · 14 Jun"],
-              ["ENERGY", "High"],
-              ["MEETINGS", "3"],
-              ["PRIORITY", "Ship the core"],
-            ].map(([k, v]) => (
-              <div key={k} className="chip" style={{ flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
-                <span className="hud-label">{k}</span>
-                <span className="hud-value" style={{ fontSize: 13 }}>
-                  {v}
-                </span>
-              </div>
-            ))}
+          <div
+            style={{
+              marginTop: 18,
+              fontFamily: "var(--font-ui)",
+              fontSize: "clamp(13px, 1.4vw, 17px)",
+              fontWeight: 300,
+              letterSpacing: "0.06em",
+            }}
+          >
+            <span style={{ color: "var(--mute)" }}>Your world. </span>
+            <span style={{ color: "var(--soft-white)" }}>Orchestrated.</span>
           </div>
         </motion.div>
       )}

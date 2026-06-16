@@ -6,8 +6,8 @@ import { bus } from "../core/eventBus";
  * triggers: requires a rising edge over a high threshold, debounces single
  * claps, and cools down after firing.
  */
-const HIGH = 0.18; // onset must spike above this RMS
-const LOW = 0.07; // …after dropping below this (hysteresis)
+const HIGH = 0.42; // onset peak must spike above this (|sample| 0..1)
+const LOW = 0.12; // …after falling below this (hysteresis)
 const MIN_GAP = 120; // ms — ignore the same clap's ring-out
 const MAX_GAP = 650; // ms — the two claps must be within this
 const COOLDOWN = 1500; // ms — after a wake
@@ -37,6 +37,9 @@ class ClapDetector {
         window.AudioContext ||
         (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.ctx = new Ctx();
+      // Browsers create the context "suspended" without a user gesture; if it
+      // never resumes the analyser only ever reads silence (no claps detected).
+      await this.ctx.resume().catch(() => undefined);
       const src = this.ctx.createMediaStreamSource(this.stream);
       this.analyser = this.ctx.createAnalyser();
       this.analyser.fftSize = 1024;
@@ -65,16 +68,16 @@ class ClapDetector {
     if (!this.analyser) return;
     const buf = new Uint8Array(this.analyser.frequencyBinCount);
     this.analyser.getByteTimeDomainData(buf);
-    let sum = 0;
+    // Peak (not RMS): a clap is a 1–5ms spike that an RMS window averages away.
+    let peak = 0;
     for (let i = 0; i < buf.length; i++) {
-      const v = (buf[i] - 128) / 128;
-      sum += v * v;
+      const v = Math.abs((buf[i] - 128) / 128);
+      if (v > peak) peak = v;
     }
-    const rms = Math.sqrt(sum / buf.length);
     const now = performance.now();
 
-    if (rms < LOW) this.armed = true;
-    if (this.armed && rms > HIGH && now - this.lastOnset > MIN_GAP) {
+    if (peak < LOW) this.armed = true;
+    if (this.armed && peak > HIGH && now - this.lastOnset > MIN_GAP) {
       this.armed = false;
       this.lastOnset = now;
       this.onClap(now);

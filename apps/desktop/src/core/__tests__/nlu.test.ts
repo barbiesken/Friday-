@@ -49,4 +49,23 @@ describe("nlu.route", () => {
   it("falls back gracefully on unknown input", () => {
     expect(route("flibber the wodget").intent).toBe("fallback");
   });
+
+  it("never parrots the user's words in the fallback", () => {
+    const i = route("flibber the wodget");
+    expect(i.reply.toLowerCase()).not.toContain("flibber");
+    expect(i.reply.toLowerCase()).not.toContain("wodget");
+  });
+
+  it("greets back instead of routing a command", () => {
+    expect(route("hello").intent).toBe("greeting");
+    expect(route("hey friday").intent).toBe("noop"); // bare wake word, nothing to do
+  });
+
+  it("answers 'what can you do' with capabilities", () => {
+    expect(route("what can you do").intent).toBe("capabilities");
+  });
+
+  it("does not mistake 'this'/'ship' for a greeting", () => {
+    expect(route("ship it").intent).not.toBe("greeting");
+  });
 });
