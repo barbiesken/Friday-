@@ -72,6 +72,47 @@ void main(){
   gl_FragColor = vec4(col, a);
 }`;
 
+/* ------------------------------ vortex heart --------------------------- */
+// A camera-facing plasma disc with two logarithmic spiral arms swirling into a
+// white-hot center — the reactor heart (replaces the old soft icosahedron blob).
+export const vortexVertex = /* glsl */ `
+varying vec2 vUv;
+void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`;
+
+export const vortexFragment = /* glsl */ `
+precision highp float;
+uniform float uTime, uActivity, uAudio, uAlert;
+uniform vec3 uCore, uGlow;
+varying vec2 vUv;
+${SNOISE}
+void main(){
+  vec2 p = (vUv - 0.5) * 2.0;
+  float r = length(p);
+  if (r > 1.0) discard;                 // clean circular disc
+  float ang = atan(p.y, p.x);
+  float t = uTime * 0.55 + uAudio * 0.6;
+
+  // two logarithmic spiral arms + turbulence → a galaxy-like swirl
+  float lr = log(r * 3.2 + 0.5);
+  float spiral = sin(2.0*ang + 6.0*lr - t);
+  float n = fbm(vec3(p*2.6, uTime*0.18));
+  float arm = smoothstep(0.12, 1.0, spiral*0.5 + 0.5 + n*0.35);
+
+  // radial energy: white-hot center, spiral mid-band, soft rim
+  float coreHot = pow(max(0.0, 1.0 - r*1.6), 3.0);
+  float disc = smoothstep(1.0, 0.2, r);
+  float energy = coreHot*2.1 + arm*disc*(0.6 + 0.75*uActivity) + disc*0.06;
+
+  // colour ramp: deep blue rim → cyan arms → white core
+  vec3 col = mix(uCore*0.95, uGlow*1.15, smoothstep(0.0, 0.6, arm + (1.0 - r)));
+  col += uGlow * arm * 0.35;
+  col = mix(col, vec3(1.25, 1.32, 1.5), coreHot);
+  col = mix(col, vec3(1.0, 0.22, 0.28) * (0.9 + 0.5*sin(uTime*8.0)), uAlert);
+
+  float a = clamp(energy, 0.0, 1.0);
+  gl_FragColor = vec4(col*energy, a);
+}`;
+
 /* -------------------------- computational ring ------------------------- */
 export const ringVertex = /* glsl */ `
 varying vec2 vUv;

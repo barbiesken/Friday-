@@ -67,7 +67,7 @@ export function SphereScene() {
         />
         <Core />
         <EffectComposer multisampling={0}>
-          <Bloom intensity={0.5} luminanceThreshold={0.5} luminanceSmoothing={0.26} mipmapBlur radius={0.4} />
+          <Bloom intensity={0.62} luminanceThreshold={0.48} luminanceSmoothing={0.26} mipmapBlur radius={0.5} />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
           <ChromaticAberration offset={aberration.current} radialModulation modulationOffset={0.4} />
           <Noise premultiply blendFunction={BlendFunction.SCREEN} opacity={0.045} />

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { dataVertex, dataFragment } from "./shaders";
 import { drive } from "./drive";
 
-const COUNT = 600;
+const COUNT = 150;
 
 /** Layer 3 — data streams. Thousands of motes travelling orbits: light highways. */
 export function DataStreams() {
@@ -18,7 +18,7 @@ export function DataStreams() {
     const seed = new Float32Array(COUNT);
     const dummy = new Float32Array(COUNT * 3); // position attribute (unused; computed in shader)
     for (let i = 0; i < COUNT; i++) {
-      radius[i] = 0.5 + Math.random() * 0.95;
+      radius[i] = 0.85 + Math.random() * 0.9;
       tilt[i] = Math.random() * Math.PI;
       phase[i] = Math.random();
       speed[i] = (0.15 + Math.random() * 0.5) * (Math.random() > 0.5 ? 1 : -1);

@@ -33,7 +33,7 @@ interface P {
 
 const TARGETS: Record<AssistantState, P> = {
   boot:        { activity: .55, ringSpeed: 1.2, flow: 1.4, storm: .3, geom: .4, presence: .2, breatheAmp: .02, breatheSpeed: .6, alert: 0 },
-  idle:        { activity: .30, ringSpeed: 1.0, flow: 1.0, storm: .12, geom: .18, presence: 0, breatheAmp: .03, breatheSpeed: .8, alert: 0 },
+  idle:        { activity: .42, ringSpeed: 1.0, flow: 1.0, storm: .12, geom: .14, presence: 0, breatheAmp: .03, breatheSpeed: .8, alert: 0 },
   // PRESENCE: rings nearly stop, core brightens, streams pull in — attention turns to you
   listening:   { activity: .95, ringSpeed: .12, flow: .5, storm: .1, geom: .25, presence: 1, breatheAmp: .025, breatheSpeed: 1.4, alert: 0 },
   // THINKING: rings accelerate, pathways light up, geometry appears, particles race

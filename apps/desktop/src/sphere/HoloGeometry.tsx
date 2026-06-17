@@ -29,7 +29,7 @@ export function HoloGeometry() {
 
   const items = useMemo<Item[]>(() => {
     const arr: Item[] = [];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 6; i++) {
       const s = 0.1 + Math.random() * 0.16;
       let edges: THREE.BufferGeometry;
       const kind = i % 6;
@@ -64,7 +64,7 @@ export function HoloGeometry() {
       const mesh = meshes.current[i];
       if (m) {
         const wave = Math.sin(drive.t * items[i].freq + items[i].phase) * 0.5 + 0.5;
-        m.opacity = Math.max(0, Math.min(0.85, wave * drive.geom * 1.7 - 0.08));
+        m.opacity = Math.max(0, Math.min(0.8, wave * drive.geom * 1.3 - 0.18));
         m.color.copy(drive.glow);
       }
       if (mesh) {
