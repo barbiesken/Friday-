@@ -196,7 +196,7 @@ export function platinumMaterial(opts: Partial<{ color: string; rough: number; c
     metalness: 1.0,
     roughness: opts.rough ?? 0.18,
     clearcoat: opts.clearcoat ?? 0.6,
-    clearcoatRoughness: 0.12,
-    envMapIntensity: 1.35,
+    clearcoatRoughness: 0.1,
+    envMapIntensity: 1.7,
   });
 }

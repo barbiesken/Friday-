@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Environment, Lightformer, ContactShadows } from '@react-three/drei';
+import { Environment, Lightformer, ContactShadows, MeshReflectorMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import WatchModel from './WatchModel';
 import Particles from './Particles';
@@ -104,6 +104,31 @@ function Bubbles() {
   );
 }
 
+function Floor() {
+  // Reflective studio floor for the showcase chapters (watch whole + centred).
+  const section = useStore((s) => s.section);
+  const perfMode = useStore((s) => s.perfMode);
+  if (perfMode || !(section === 0 || section === 13 || section === 14)) return null;
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.95, 0]}>
+      <planeGeometry args={[60, 60]} />
+      <MeshReflectorMaterial
+        resolution={1024}
+        blur={[400, 150]}
+        mixBlur={1}
+        mixStrength={12}
+        roughness={0.7}
+        depthScale={1}
+        minDepthThreshold={0.4}
+        maxDepthThreshold={1.4}
+        color="#070a0c"
+        metalness={0.6}
+        mirror={0.45}
+      />
+    </mesh>
+  );
+}
+
 function Diagnostics() {
   const gl = useThree((s) => s.gl);
   const setDiag = useStore((s) => s.setDiag);
@@ -193,6 +218,9 @@ export default function Scene() {
         <Lightformer intensity={1.0} position={[5, 1, 2]} scale={[4, 9, 1]} color="#ffffff" />
         <Lightformer intensity={1.6} position={[0, 4.5, -3]} scale={[12, 2, 1]} color="#cfe6f0" />
         <Lightformer intensity={0.8} position={[0, -4, 3]} scale={[10, 3, 1]} color="#6f97ab" />
+        {/* Bright moving streak overhead for travelling platinum reflections. */}
+        <Lightformer form="ring" intensity={1.4} position={[2, 3, 3]} scale={[3, 3, 1]} color="#ffffff" />
+        <Lightformer intensity={1.1} position={[-3, -1, 4]} scale={[2, 6, 1]} color="#dfe7ef" />
       </Environment>
 
       <WatchModel />
@@ -210,6 +238,7 @@ export default function Scene() {
         />
       )}
 
+      <Floor />
       <Effects />
     </>
   );
