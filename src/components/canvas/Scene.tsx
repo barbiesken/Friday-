@@ -30,8 +30,8 @@ function CameraRig() {
     const k1 = CAMERA_KEYS[j];
 
     posTarget.lerpVectors(a.set(...k0.pos), b.set(...k1.pos), f);
-    posTarget.x += pointer.x * 0.35;
-    posTarget.y += pointer.y * 0.22;
+    posTarget.x += pointer.x * 0.15;
+    posTarget.y += pointer.y * 0.12;
     lookTarget.lerpVectors(a.set(...k0.target), b.set(...k1.target), f);
     fovTarget.current = THREE.MathUtils.lerp(k0.fov, k1.fov, f);
 

@@ -12,7 +12,7 @@ export default function Effects() {
   return (
     <EffectComposer multisampling={0}>
       <SMAA />
-      <Bloom intensity={0.4} luminanceThreshold={0.82} luminanceSmoothing={0.2} mipmapBlur radius={0.6} />
+      <Bloom intensity={0.3} luminanceThreshold={0.9} luminanceSmoothing={0.2} mipmapBlur radius={0.55} />
       <Vignette eskil={false} offset={0.28} darkness={0.6} />
     </EffectComposer>
   );

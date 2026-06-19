@@ -140,8 +140,8 @@ export default function Watch() {
     flip.current = damp(flip.current, CASEBACK_SECTIONS.includes(section) ? Math.PI : 0, 2.6, dt);
 
     if (root.current) {
-      root.current.rotation.y = damp(root.current.rotation.y, flip.current + pointer.x * 0.45 + t * 0.06, 5, dt);
-      root.current.rotation.x = damp(root.current.rotation.x, pointer.y * 0.24, 5, dt);
+      root.current.rotation.y = damp(root.current.rotation.y, flip.current + pointer.x * 0.25 + t * 0.06, 5, dt);
+      root.current.rotation.x = damp(root.current.rotation.x, pointer.y * 0.14, 5, dt);
     }
 
     for (const key of Object.keys(HOME)) {

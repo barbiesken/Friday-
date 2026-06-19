@@ -62,13 +62,22 @@ export default function Experience() {
     };
   }, [reduced, setScroll]);
 
-  // Pointer parallax (normalized to -1..1).
+  // Pointer parallax (normalized to -1..1). Mouse only — touch must drive
+  // scrolling, not the camera — and recentres when the pointer leaves.
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
+      if (e.pointerType && e.pointerType !== 'mouse') return;
       setPointer((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
     };
+    const reset = () => setPointer(0, 0);
     window.addEventListener('pointermove', onMove);
-    return () => window.removeEventListener('pointermove', onMove);
+    window.addEventListener('blur', reset);
+    document.addEventListener('mouseleave', reset);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('blur', reset);
+      document.removeEventListener('mouseleave', reset);
+    };
   }, [setPointer]);
 
   // Seek helper used by the palette / scroll hint / keyboard.
@@ -158,7 +167,7 @@ export default function Experience() {
 
   return (
     <>
-      <div className="fixed inset-0 z-0" style={{ pointerEvents: 'none' }}>
+      <div className="fixed inset-0 z-0 bg-ink" style={{ pointerEvents: 'none' }}>
         <Canvas
           dpr={[1, 2]}
           gl={{
