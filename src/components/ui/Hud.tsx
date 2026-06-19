@@ -7,9 +7,9 @@ import { SECTIONS } from '@/lib/constants';
 function SceneTint() {
   const section = useStore((s) => s.section);
   // Color grade per chapter — ice dial, underwater, night sky.
-  const ice = section === 2 ? 1 : 0;
-  const water = section === 6 ? 1 : 0;
-  const night = section === 7 ? 1 : 0;
+  const ice = section === 4 ? 1 : 0;
+  const water = section === 13 ? 1 : 0;
+  const night = section === 14 ? 1 : 0;
   return (
     <div className="pointer-events-none fixed inset-0 z-[5]">
       <motion.div

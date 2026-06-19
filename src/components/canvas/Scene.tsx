@@ -55,7 +55,7 @@ function CameraRig() {
 
 function Bubbles() {
   const section = useStore((s) => s.section);
-  const visible = section === 6;
+  const visible = section === 13;
   const ref = useRef<THREE.Points>(null);
   const count = 220;
   const { positions } = useMemo(() => {
@@ -161,7 +161,8 @@ export default function Scene() {
   const perfMode = useStore((s) => s.perfMode);
 
   useEffect(() => {
-    scene.fog = new THREE.FogExp2(new THREE.Color(COLORS.ink), 0.018);
+    // Very light haze for depth only — keeps the watch itself crisp.
+    scene.fog = new THREE.FogExp2(new THREE.Color(COLORS.ink), 0.006);
     scene.background = null;
     return () => {
       scene.fog = null;
@@ -186,7 +187,7 @@ export default function Scene() {
       <pointLight position={[0, 0, 6]} intensity={0.6} color={COLORS.iceBright} />
 
       {/* In-memory studio environment for reflections — no external HDR. */}
-      <Environment resolution={perfMode ? 128 : 256} frames={perfMode ? 1 : Infinity}>
+      <Environment resolution={perfMode ? 128 : 512} frames={perfMode ? 1 : Infinity}>
         <Lightformer intensity={2.2} position={[0, 2.5, 4]} scale={[7, 7, 1]} color="#eef3f8" />
         <Lightformer intensity={1.3} position={[-5, 1, 2]} scale={[4, 9, 1]} color="#9fb4c4" />
         <Lightformer intensity={1.0} position={[5, 1, 2]} scale={[4, 9, 1]} color="#ffffff" />
