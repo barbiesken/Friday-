@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    background-color: #050607;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  html::-webkit-scrollbar {
+    display: none;
+  }
+  body {
+    @apply bg-ink font-sans text-platinum antialiased;
+    overscroll-behavior-y: none;
+  }
+  ::selection {
+    background: rgba(160, 210, 235, 0.25);
+    color: #f4f6f9;
+  }
+  :focus-visible {
+    outline: 1px solid rgba(160, 210, 235, 0.7);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .luxe-btn {
+    @apply border border-platinum/40 px-8 py-3 font-sans text-[11px] uppercase tracking-luxe text-platinum-bright transition-all duration-500;
+  }
+  .luxe-btn:hover {
+    @apply border-ice bg-ice/10 text-ice-bright;
+  }
+  .hud-chip {
+    @apply rounded-full border border-white/10 px-3 py-1.5 font-sans text-[10px] uppercase tracking-wide2 text-platinum-soft transition-colors hover:border-ice/50 hover:text-ice-bright;
+  }
+  .dev-btn {
+    @apply rounded border border-white/10 px-2 py-1 text-[10px] uppercase tracking-wide2 text-platinum-soft transition-colors hover:border-ice/50 hover:text-ice-bright;
+  }
+  .watchmaker-tag {
+    @apply whitespace-nowrap rounded-full border border-ice/40 bg-ink-800/80 px-3 py-1 font-mono text-[10px] uppercase tracking-wide2 text-ice-bright backdrop-blur;
+  }
+  .scroll-line {
+    position: relative;
+    width: 1px;
+    height: 56px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent, #a9c7d6);
+    animation: scrollPulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+}
+
+@keyframes scrollPulse {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* Night sky for the Time chapter — pure CSS, no assets. */
+.stars {
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 70% 20%, rgba(207, 230, 240, 0.8), transparent),
+    radial-gradient(1.5px 1.5px at 40% 70%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 85% 60%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 55% 45%, rgba(207, 230, 240, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 10% 80%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 90% 85%, rgba(255, 255, 255, 0.7), transparent);
+  background-color: rgba(3, 9, 16, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-line::after {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

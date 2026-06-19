@@ -1,0 +1,41 @@
+{
+  "name": "rolex-day-date-40",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ROLEX DAY-DATE 40 — The Achievement of an Ideal. An unofficial cinematic concept experience.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "generate:assets": "node scripts/generate-assets.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.1.2",
+    "@react-three/fiber": "^9.1.2",
+    "framer-motion": "^11.18.2",
+    "gsap": "^3.12.7",
+    "lenis": "^1.1.20",
+    "next": "^15.1.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.173.0",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@types/three": "^0.173.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.1.7",
+    "postcss": "^8.5.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  }
+}
