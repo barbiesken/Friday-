@@ -142,6 +142,17 @@ export default function Experience() {
     useStore.getState().setDiag({ webgpu: typeof navigator !== 'undefined' && 'gpu' in navigator });
   }, []);
 
+  // Auto-enable Performance mode on phones / low-power GPUs so the experience
+  // renders reliably (disables post-processing, reflective floor, lowers DPR).
+  useEffect(() => {
+    const smallScreen = window.matchMedia('(max-width: 820px)').matches;
+    const mobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const lowCores = (navigator.hardwareConcurrency || 8) <= 4;
+    if (smallScreen || mobileUA || lowCores) {
+      useStore.setState({ perfMode: true });
+    }
+  }, []);
+
   // Konami → watchmaker mode.
   useKonami(() => setWatchmaker(!useStore.getState().watchmaker));
 

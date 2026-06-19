@@ -104,6 +104,40 @@ function Bubbles() {
   );
 }
 
+function Backdrop() {
+  // Always-present graded studio backdrop (immune to fog / canvas alpha).
+  const mat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        depthWrite: false,
+        fog: false,
+        uniforms: {
+          uTop: { value: new THREE.Color('#0e1a26') },
+          uBottom: { value: new THREE.Color('#04060a') },
+          uGlow: { value: new THREE.Color('#1d3040') },
+        },
+        vertexShader: `varying vec3 vPos; void main(){ vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+        fragmentShader: `
+          varying vec3 vPos;
+          uniform vec3 uTop; uniform vec3 uBottom; uniform vec3 uGlow;
+          void main(){
+            float t = clamp(vPos.y * 0.5 + 0.5, 0.0, 1.0);
+            vec3 col = mix(uBottom, uTop, pow(t, 1.3));
+            float horizon = smoothstep(0.28, 0.0, abs(vPos.y));
+            col += uGlow * horizon * 0.18;
+            gl_FragColor = vec4(col, 1.0);
+          }`,
+      }),
+    [],
+  );
+  return (
+    <mesh material={mat} scale={60} frustumCulled={false}>
+      <sphereGeometry args={[1, 32, 32]} />
+    </mesh>
+  );
+}
+
 function Floor() {
   // Reflective studio floor for the showcase chapters (watch whole + centred).
   const section = useStore((s) => s.section);
@@ -113,8 +147,8 @@ function Floor() {
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.95, 0]}>
       <planeGeometry args={[60, 60]} />
       <MeshReflectorMaterial
-        resolution={1024}
-        blur={[400, 150]}
+        resolution={512}
+        blur={[300, 100]}
         mixBlur={1}
         mixStrength={12}
         roughness={0.7}
@@ -201,6 +235,7 @@ export default function Scene() {
 
   return (
     <>
+      <Backdrop />
       <CameraRig />
       <Diagnostics />
       <Capture />
@@ -212,7 +247,7 @@ export default function Scene() {
       <pointLight position={[0, 0, 6]} intensity={0.6} color={COLORS.iceBright} />
 
       {/* In-memory studio environment for reflections — no external HDR. */}
-      <Environment resolution={perfMode ? 128 : 512} frames={perfMode ? 1 : Infinity}>
+      <Environment resolution={perfMode ? 128 : 256} frames={perfMode ? 1 : Infinity}>
         <Lightformer intensity={2.2} position={[0, 2.5, 4]} scale={[7, 7, 1]} color="#eef3f8" />
         <Lightformer intensity={1.3} position={[-5, 1, 2]} scale={[4, 9, 1]} color="#9fb4c4" />
         <Lightformer intensity={1.0} position={[5, 1, 2]} scale={[4, 9, 1]} color="#ffffff" />

@@ -8,7 +8,7 @@ import { useStore } from '@/lib/store';
 
 export default function Particles() {
   const perfMode = useStore((s) => s.perfMode);
-  const count = perfMode ? 400 : 1400;
+  const count = perfMode ? 300 : 900;
   const range = 16;
   const points = useRef<THREE.Points>(null);
   const gl = useThree((s) => s.gl);

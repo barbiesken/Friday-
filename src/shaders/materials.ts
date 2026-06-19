@@ -158,29 +158,8 @@ export function createDialPrintTexture(): THREE.Texture | null {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  drawCrown(ctx, cx, 300, 66);
-
-  const setSpacing = (v: string) => {
-    try {
-      (ctx as unknown as { letterSpacing: string }).letterSpacing = v;
-    } catch {
-      /* not supported */
-    }
-  };
-
-  setSpacing('8px');
-  ctx.font = '700 90px Georgia, "Times New Roman", serif';
-  ctx.fillText('ROLEX', cx, 384);
-
-  setSpacing('5px');
-  ctx.font = '600 34px Georgia, serif';
-  ctx.fillText('DAY-DATE', cx, 648);
-  ctx.font = '500 27px Georgia, serif';
-  ctx.fillText('PLATINUM', cx, 690);
-
-  setSpacing('7px');
-  ctx.font = '600 23px Georgia, serif';
-  ctx.fillText('SWISS  MADE', cx, 908);
+  // Coronet symbol only — no wordmark text.
+  drawCrown(ctx, cx, 372, 96);
 
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;

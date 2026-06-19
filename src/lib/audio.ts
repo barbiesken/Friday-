@@ -202,12 +202,13 @@ class WatchAudio {
     const section = useStore.getState().section;
     const k = section / (TOTAL_SECTIONS - 1); // 0..1 build
 
+    // Full house groove from the start; claps + stabs layer in as you scroll.
     if (KICK[s]) this.kick(time);
-    if (CHAT[s]) this.hat(time, false, 0.06 + k * 0.12);
-    if (k > 0.15 && OHAT[s]) this.hat(time, true, 0.05 + k * 0.12);
-    if (k > 0.3 && CLAP[s]) this.clap(time, 0.25 + k * 0.25);
-    if (k > 0.1 && BASS[s]) this.bass(time, 0.3 + k * 0.3);
-    if (k > 0.45 && STAB[s]) this.stab(time, 0.12 + k * 0.16);
+    if (CHAT[s]) this.hat(time, false, 0.09 + k * 0.1);
+    if (OHAT[s]) this.hat(time, true, 0.09 + k * 0.1);
+    if (BASS[s]) this.bass(time, 0.34 + k * 0.24);
+    if (k > 0.2 && CLAP[s]) this.clap(time, 0.22 + k * 0.26);
+    if (k > 0.4 && STAB[s]) this.stab(time, 0.12 + k * 0.16);
 
     if (this.padLp) this.padLp.frequency.setTargetAtTime(420 + k * 1400, time, 0.4);
     if (this.padGain) this.padGain.gain.setTargetAtTime(0.06 + k * 0.05, time, 0.4);
