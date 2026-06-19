@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Environment, Lightformer, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
-import Watch from './Watch';
+import WatchModel from './WatchModel';
 import Particles from './Particles';
 import Effects from './Effects';
 import { useStore } from '@/lib/store';
@@ -195,7 +195,7 @@ export default function Scene() {
         <Lightformer intensity={0.8} position={[0, -4, 3]} scale={[10, 3, 1]} color="#6f97ab" />
       </Environment>
 
-      <Watch />
+      <WatchModel />
       <Particles />
       <Bubbles />
 

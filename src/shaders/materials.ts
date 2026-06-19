@@ -121,6 +121,74 @@ export function createParticlesMaterial() {
   });
 }
 
+function drawCrown(ctx: CanvasRenderingContext2D, x: number, y: number, s: number) {
+  const r = s * 0.16;
+  const xs = [-0.72, -0.36, 0, 0.36, 0.72].map((o) => x + o * s);
+  const ys = [y - s * 0.05, y - s * 0.22, y - s * 0.34, y - s * 0.22, y - s * 0.05];
+  ctx.lineWidth = s * 0.1;
+  xs.forEach((px, i) => {
+    ctx.beginPath();
+    ctx.moveTo(px, ys[i]);
+    ctx.lineTo(px, y + s * 0.18);
+    ctx.stroke();
+  });
+  xs.forEach((px, i) => {
+    ctx.beginPath();
+    ctx.arc(px, ys[i], r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.fillRect(x - s * 0.8, y + s * 0.16, s * 1.6, s * 0.18);
+}
+
+/**
+ * Dial printing — coronet + ROLEX + DAY-DATE + PLATINUM + SWISS MADE drawn to a
+ * transparent canvas, returned as a texture. No font files; uses system serif.
+ */
+export function createDialPrintTexture(): THREE.Texture | null {
+  if (typeof document === 'undefined') return null;
+  const size = 1024;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  if (!ctx) return null;
+  const cx = size / 2;
+  ctx.clearRect(0, 0, size, size);
+  ctx.fillStyle = '#eef3f8';
+  ctx.strokeStyle = '#eef3f8';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  drawCrown(ctx, cx, 300, 66);
+
+  const setSpacing = (v: string) => {
+    try {
+      (ctx as unknown as { letterSpacing: string }).letterSpacing = v;
+    } catch {
+      /* not supported */
+    }
+  };
+
+  setSpacing('8px');
+  ctx.font = '700 90px Georgia, "Times New Roman", serif';
+  ctx.fillText('ROLEX', cx, 384);
+
+  setSpacing('5px');
+  ctx.font = '600 34px Georgia, serif';
+  ctx.fillText('DAY-DATE', cx, 648);
+  ctx.font = '500 27px Georgia, serif';
+  ctx.fillText('PLATINUM', cx, 690);
+
+  setSpacing('7px');
+  ctx.font = '600 23px Georgia, serif';
+  ctx.fillText('SWISS  MADE', cx, 908);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 /** Shared physically-based platinum. Tuned for the in-scene studio env. */
 export function platinumMaterial(opts: Partial<{ color: string; rough: number; clearcoat: number }> = {}) {
   return new THREE.MeshPhysicalMaterial({

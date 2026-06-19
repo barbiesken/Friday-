@@ -6,7 +6,7 @@ import { RoundedBox, Instances, Instance, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '@/lib/store';
 import { PART_EXPLODE, PART_ASSEMBLE_AT, CASEBACK_SECTIONS, TOTAL_SECTIONS, COLORS } from '@/lib/constants';
-import { createDialMaterial, platinumMaterial } from '@/shaders/materials';
+import { createDialMaterial, platinumMaterial, createDialPrintTexture } from '@/shaders/materials';
 
 const damp = THREE.MathUtils.damp;
 const smoothstep = THREE.MathUtils.smoothstep;
@@ -74,6 +74,19 @@ export default function Watch() {
     () => new THREE.MeshStandardMaterial({ color: '#08303d', metalness: 0.7, roughness: 0.35 }),
     [],
   );
+  const dialPrint = useMemo(() => {
+    const tex = createDialPrintTexture();
+    return tex
+      ? new THREE.MeshStandardMaterial({
+          map: tex,
+          transparent: true,
+          metalness: 0.4,
+          roughness: 0.45,
+          alphaTest: 0.02,
+          depthWrite: false,
+        })
+      : null;
+  }, []);
   const darkInset = useMemo(
     () => new THREE.MeshStandardMaterial({ color: '#05080a', metalness: 0.8, roughness: 0.3 }),
     [],
@@ -221,6 +234,11 @@ export default function Watch() {
         <mesh position={[0, 0, 0.045]} material={polished}>
           <torusGeometry args={[1.5, 0.025, 16, 160]} />
         </mesh>
+        {dialPrint && (
+          <mesh position={[0, 0, 0.052]} material={dialPrint}>
+            <circleGeometry args={[1.5, 128]} />
+          </mesh>
+        )}
         <mesh position={[0, 1.04, 0.06]} material={darkInset}>
           <boxGeometry args={[0.74, 0.22, 0.03]} />
         </mesh>

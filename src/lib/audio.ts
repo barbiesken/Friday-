@@ -3,43 +3,51 @@
 import { useStore } from './store';
 import { TOTAL_SECTIONS } from './constants';
 
-// Fully procedural "deep ambient techno" — zero asset files.
-// A slow sub-bass pulse + airy detuned pads through a synthesized reverb +
-// filtered-noise hats. The pad filter and shimmer open up as you scroll.
-// Created lazily on first user gesture (browsers block autoplay).
+// Fully procedural HOUSE groove — zero asset files.
+// 4-on-the-floor kick, claps on 2 & 4, off-beat open hats, an off-beat
+// bassline, organ stabs and an atmospheric pad. The arrangement builds as you
+// scroll (sparser early, full groove by the finale). Created lazily on a gesture.
 
-const BPM = 104;
+const BPM = 123;
+
+// 16-step (one bar) patterns.
+const KICK = [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0];
+const CLAP = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0];
+const OHAT = [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0];
+const CHAT = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0];
+const BASS = [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0];
+const STAB = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
 class WatchAudio {
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
-  private padGain: GainNode | null = null;
-  private lp: BiquadFilterNode | null = null;
   private reverb: ConvolverNode | null = null;
+  private padLp: BiquadFilterNode | null = null;
+  private padGain: GainNode | null = null;
   private pads: OscillatorNode[] = [];
   private timer: number | null = null;
-  private nextBeat = 0;
-  private beatIndex = 0;
+  private nextStep = 0;
+  private step = 0;
   private started = false;
 
-  // Chord roots (Hz) — a slow, minor, cinematic cycle.
-  private roots = [55.0, 49.0, 58.27, 43.65]; // A1, G1, A#1, F1
-  private chordStep = 0;
+  // Housey minor progression (root Hz, low octave): Am · G · C · Em
+  private roots = [110.0, 98.0, 130.81, 82.41];
+  private bar = 0;
+
+  private root() {
+    return this.roots[Math.floor(this.bar / 2) % this.roots.length];
+  }
 
   private makeReverb(ctx: AudioContext) {
-    const seconds = 2.6;
-    const rate = ctx.sampleRate;
-    const len = Math.floor(rate * seconds);
-    const impulse = ctx.createBuffer(2, len, rate);
+    const len = Math.floor(ctx.sampleRate * 1.8);
+    const buf = ctx.createBuffer(2, len, ctx.sampleRate);
     for (let ch = 0; ch < 2; ch++) {
-      const data = impulse.getChannelData(ch);
-      for (let i = 0; i < len; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
-      }
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
     }
-    const conv = ctx.createConvolver();
-    conv.buffer = impulse;
-    return conv;
+    const c = ctx.createConvolver();
+    c.buffer = buf;
+    return c;
   }
 
   private ensure() {
@@ -51,114 +59,168 @@ class WatchAudio {
     const master = ctx.createGain();
     master.gain.value = 0;
     const comp = ctx.createDynamicsCompressor();
-    comp.threshold.value = -14;
-    comp.ratio.value = 6;
+    comp.threshold.value = -12;
+    comp.ratio.value = 4;
     master.connect(comp);
     comp.connect(ctx.destination);
     this.master = master;
 
     const reverb = this.makeReverb(ctx);
     const revGain = ctx.createGain();
-    revGain.gain.value = 0.5;
+    revGain.gain.value = 0.35;
     reverb.connect(revGain);
     revGain.connect(master);
     this.reverb = reverb;
 
-    // Pad: three detuned saws → low-pass → pad gain → master + reverb.
+    // Atmospheric pad.
     const lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 320;
-    lp.Q.value = 1.2;
-    this.lp = lp;
-
+    lp.frequency.value = 500;
+    lp.Q.value = 1;
+    this.padLp = lp;
     const padGain = ctx.createGain();
-    padGain.gain.value = 0.12;
+    padGain.gain.value = 0.07;
     lp.connect(padGain);
     padGain.connect(master);
     padGain.connect(reverb);
     this.padGain = padGain;
 
-    const detunes = [-6, 0, 7];
-    for (let i = 0; i < 3; i++) {
+    [0, 0, 7].forEach((semi, i) => {
       const o = ctx.createOscillator();
       o.type = 'sawtooth';
-      o.frequency.value = this.roots[0] * (i === 2 ? 1.5 : 1); // root, root, fifth
-      o.detune.value = detunes[i];
+      o.frequency.value = this.roots[0] * (i === 2 ? 1.5 : 1) * 2;
+      o.detune.value = i === 1 ? 8 : -5;
       o.connect(lp);
       o.start();
       this.pads.push(o);
-    }
+    });
+  }
 
-    // Slow filter LFO for movement.
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.06;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 120;
-    lfo.connect(lfoGain);
-    lfoGain.connect(lp.frequency);
-    lfo.start();
+  private env(time: number, peak: number, attack: number, decay: number) {
+    const g = this.ctx!.createGain();
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.exponentialRampToValueAtTime(peak, time + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, time + attack + decay);
+    return g;
   }
 
   private kick(time: number) {
     const ctx = this.ctx!;
     const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.frequency.setValueAtTime(120, time);
-    o.frequency.exponentialRampToValueAtTime(45, time + 0.12);
-    g.gain.setValueAtTime(0.0001, time);
-    g.gain.exponentialRampToValueAtTime(0.95, time + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, time + 0.34);
+    o.frequency.setValueAtTime(135, time);
+    o.frequency.exponentialRampToValueAtTime(48, time + 0.11);
+    const g = this.env(time, 1.0, 0.005, 0.3);
     o.connect(g);
     g.connect(this.master!);
     o.start(time);
-    o.stop(time + 0.45);
+    o.stop(time + 0.4);
   }
 
-  private hat(time: number, gainValue: number) {
+  private noise(time: number, dur: number) {
     const ctx = this.ctx!;
-    const dur = 0.05;
-    const buffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (data.length * 0.25));
+    const buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * 0.3));
     const src = ctx.createBufferSource();
-    src.buffer = buffer;
+    src.buffer = buf;
+    return src;
+  }
+
+  private hat(time: number, open: boolean, vol: number) {
+    const ctx = this.ctx!;
+    const src = this.noise(time, open ? 0.2 : 0.05);
     const hp = ctx.createBiquadFilter();
     hp.type = 'highpass';
-    hp.frequency.value = 7000;
+    hp.frequency.value = open ? 8000 : 9500;
     const g = ctx.createGain();
-    g.gain.value = gainValue;
+    g.gain.value = vol;
     src.connect(hp);
     hp.connect(g);
     g.connect(this.master!);
     src.start(time);
   }
 
-  private setChord(time: number) {
-    const root = this.roots[this.chordStep % this.roots.length];
-    const freqs = [root, root, root * 1.5];
-    this.pads.forEach((o, i) => o.frequency.setTargetAtTime(freqs[i], time, 0.25));
-    this.chordStep++;
+  private clap(time: number, vol: number) {
+    const ctx = this.ctx!;
+    const src = this.noise(time, 0.18);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 1600;
+    bp.Q.value = 1.2;
+    const g = ctx.createGain();
+    g.gain.value = vol;
+    src.connect(bp);
+    bp.connect(g);
+    g.connect(this.master!);
+    g.connect(this.reverb!);
+    src.start(time);
+  }
+
+  private bass(time: number, vol: number) {
+    const ctx = this.ctx!;
+    const o = ctx.createOscillator();
+    o.type = 'triangle';
+    o.frequency.value = this.root();
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 260;
+    const g = this.env(time, vol, 0.01, 0.16);
+    o.connect(lp);
+    lp.connect(g);
+    g.connect(this.master!);
+    o.start(time);
+    o.stop(time + 0.25);
+  }
+
+  private stab(time: number, vol: number) {
+    const ctx = this.ctx!;
+    const root = this.root() * 2;
+    const freqs = [root, root * 1.2, root * 1.5]; // minor triad
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 2200;
+    const g = this.env(time, vol, 0.005, 0.18);
+    lp.connect(g);
+    g.connect(this.master!);
+    g.connect(this.reverb!);
+    freqs.forEach((f) => {
+      const o = ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = f;
+      o.connect(lp);
+      o.start(time);
+      o.stop(time + 0.22);
+    });
   }
 
   private loop = () => {
     const ctx = this.ctx;
     if (!ctx) return;
-    const beat = 60 / BPM;
-    const time = this.nextBeat;
+    const sixteenth = 60 / BPM / 4;
+    const time = this.nextStep;
+    const s = this.step;
     const section = useStore.getState().section;
-    const intensity = section / (TOTAL_SECTIONS - 1); // 0..1 across the journey
+    const k = section / (TOTAL_SECTIONS - 1); // 0..1 build
 
-    this.kick(time);
-    this.hat(time + beat * 0.5, 0.05 + intensity * 0.12);
-    if (intensity > 0.5) this.hat(time + beat * 0.75, 0.04 + intensity * 0.08);
-    if (this.beatIndex % 8 === 0) this.setChord(time);
+    if (KICK[s]) this.kick(time);
+    if (CHAT[s]) this.hat(time, false, 0.06 + k * 0.12);
+    if (k > 0.15 && OHAT[s]) this.hat(time, true, 0.05 + k * 0.12);
+    if (k > 0.3 && CLAP[s]) this.clap(time, 0.25 + k * 0.25);
+    if (k > 0.1 && BASS[s]) this.bass(time, 0.3 + k * 0.3);
+    if (k > 0.45 && STAB[s]) this.stab(time, 0.12 + k * 0.16);
 
-    if (this.lp) this.lp.frequency.setTargetAtTime(280 + intensity * 1200, time, 0.5);
-    if (this.padGain) this.padGain.gain.setTargetAtTime(0.1 + intensity * 0.07, time, 0.5);
+    if (this.padLp) this.padLp.frequency.setTargetAtTime(420 + k * 1400, time, 0.4);
+    if (this.padGain) this.padGain.gain.setTargetAtTime(0.06 + k * 0.05, time, 0.4);
 
-    this.beatIndex++;
-    this.nextBeat += beat;
-    this.timer = window.setTimeout(this.loop, beat * 1000 * 0.85);
+    // advance
+    this.step = (s + 1) % 16;
+    if (this.step === 0) {
+      this.bar++;
+      const r = this.root();
+      this.pads.forEach((o, i) => o.frequency.setTargetAtTime(r * (i === 2 ? 1.5 : 1) * 2, time, 0.3));
+    }
+    this.nextStep += sixteenth;
+    this.timer = window.setTimeout(this.loop, sixteenth * 1000 * 0.5);
   };
 
   async enable() {
@@ -166,10 +228,10 @@ class WatchAudio {
     if (!this.ctx || !this.master) return;
     if (this.ctx.state === 'suspended') await this.ctx.resume();
     this.master.gain.cancelScheduledValues(this.ctx.currentTime);
-    this.master.gain.linearRampToValueAtTime(0.85, this.ctx.currentTime + 1.4);
+    this.master.gain.linearRampToValueAtTime(0.85, this.ctx.currentTime + 1.0);
     if (!this.started) {
       this.started = true;
-      this.nextBeat = this.ctx.currentTime + 0.1;
+      this.nextStep = this.ctx.currentTime + 0.1;
       this.loop();
     }
   }
@@ -177,7 +239,7 @@ class WatchAudio {
   disable() {
     if (!this.ctx || !this.master) return;
     this.master.gain.cancelScheduledValues(this.ctx.currentTime);
-    this.master.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.6);
+    this.master.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
   }
 }
 
