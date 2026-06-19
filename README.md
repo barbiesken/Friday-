@@ -53,8 +53,9 @@ screen-reader-only crawlable content are included.
 ## Tech stack
 
 **Wired and running:** Next.js (App Router) · TypeScript · Tailwind CSS ·
-React Three Fiber · Three.js · GSAP + ScrollTrigger · Lenis · Framer Motion
-(a.k.a. Motion / motion.dev) · GLSL · Zustand · dynamic imports + progressive loading.
+React Three Fiber · Three.js · @react-three/postprocessing (SMAA · Bloom · Vignette) ·
+GSAP + ScrollTrigger · Lenis · Framer Motion (a.k.a. Motion / motion.dev) · GLSL ·
+Zustand · dynamic imports + progressive loading.
 
 **WebGPU:** capability is detected and reported in the Developer panel; the renderer
 runs on stable WebGL2 (WebGPU + R3F is still maturing — flip it on once it stabilizes).
@@ -66,9 +67,9 @@ runs on stable WebGL2 (WebGPU + R3F is still maturing — flip it on once it sta
   authored, editor-tweakable sequences.
 - **Lottie** — no vector animation assets are used (the brief forbids stock/binary
   assets); the loader/transitions are CSS + Framer Motion.
-- **Postprocessing DOF/Bloom** — soft bloom is approximated with emissive materials,
-  tone mapping and the lighting environment to keep the bundle lean and avoid
-  version-coupled effect passes. Add `@react-three/postprocessing` for true DOF.
+- **Depth of field** — a true DOF pass is available via `@react-three/postprocessing`
+  (already installed); it's left off by default to keep the watch razor-sharp. The
+  shipped post-processing pass is SMAA + a restrained Bloom + Vignette.
 
 These are deliberate, honest trade-offs so `npm install && npm run dev` just works.
 

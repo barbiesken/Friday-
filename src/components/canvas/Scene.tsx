@@ -6,6 +6,7 @@ import { Environment, Lightformer, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import Watch from './Watch';
 import Particles from './Particles';
+import Effects from './Effects';
 import { useStore } from '@/lib/store';
 import { CAMERA_KEYS, COLORS, TOTAL_SECTIONS } from '@/lib/constants';
 
@@ -127,17 +128,15 @@ function Diagnostics() {
 
 function Capture() {
   const gl = useThree((s) => s.gl);
-  const scene = useThree((s) => s.scene);
-  const camera = useThree((s) => s.camera);
   const pending = useStore((s) => s.screenshotPending);
   const clear = useStore((s) => s.clearScreenshot);
   const pushToast = useStore((s) => s.pushToast);
 
   useEffect(() => {
     if (!pending) return;
-    // Render one clean frame, then export the canvas.
-    gl.render(scene, camera);
-    requestAnimationFrame(() => {
+    // The latest post-processed frame is retained (preserveDrawingBuffer),
+    // so exporting the canvas includes the bloom/vignette pass.
+    const id = requestAnimationFrame(() => {
       try {
         const url = gl.domElement.toDataURL('image/png');
         const link = document.createElement('a');
@@ -150,7 +149,8 @@ function Capture() {
       }
       clear();
     });
-  }, [pending, gl, scene, camera, clear, pushToast]);
+    return () => cancelAnimationFrame(id);
+  }, [pending, gl, clear, pushToast]);
 
   return null;
 }
@@ -209,6 +209,8 @@ export default function Scene() {
           color="#000000"
         />
       )}
+
+      <Effects />
     </>
   );
 }
